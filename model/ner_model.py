@@ -15,6 +15,7 @@ class NERModel(BaseModel):
         super(NERModel, self).__init__(config)
         self.idx_to_tag = {idx: tag for tag, idx in
                            self.config.vocab_tags.items()}
+        # print(self.idx_to_tag)
 
 
     def add_placeholders(self):
@@ -38,6 +39,10 @@ class NERModel(BaseModel):
         # shape = (batch size, max length of sentence in batch)
         self.labels = tf.placeholder(tf.int32, shape=[None, None],
                         name="labels")
+
+        # shape = (batch size, max length of sentences in batch, tag length)
+        self.labels_1hot = tf.placeholder(tf.int32, shape=[None, None],
+                                          name="labels_1hot")
 
         # hyper parameters
         self.dropout = tf.placeholder(dtype=tf.float32, shape=[],
@@ -82,6 +87,10 @@ class NERModel(BaseModel):
         if labels is not None:
             labels, _ = pad_sequences(labels, 0)
             feed[self.labels] = labels
+            
+            n_value = np.max(labels[0]) + 1
+            labels_1hot = np.eye(n_value)[labels[0]]
+            feed[self.labels_1hot] = labels_1hot
 
         if lr is not None:
             feed[self.lr] = lr
@@ -192,8 +201,9 @@ class NERModel(BaseModel):
         outside the graph.
         """
         if not self.config.use_crf:
-            self.labels_pred = tf.cast(tf.argmax(self.logits, axis=-1),
-                    tf.int32)
+            self.labels_pred = tf.identity(self.logits)
+            self.labels_pred_argmax = tf.cast(tf.argmax(self.logits, axis=-1),
+                                       tf.int32)
 
 
     def add_loss_op(self):
@@ -204,8 +214,8 @@ class NERModel(BaseModel):
             self.trans_params = trans_params # need to evaluate it for decoding
             self.loss = tf.reduce_mean(-log_likelihood)
         else:
-            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
-                    logits=self.logits, labels=self.labels)
+            losses = tf.nn.softmax_cross_entropy_with_logits_v2(
+                    logits=self.logits, labels=self.labels_1hot)
             mask = tf.sequence_mask(self.sequence_lengths)
             losses = tf.boolean_mask(losses, mask)
             self.loss = tf.reduce_mean(losses)
@@ -252,13 +262,13 @@ class NERModel(BaseModel):
                 viterbi_seq, viterbi_score = tf.contrib.crf.viterbi_decode(
                         logit, trans_params)
                 viterbi_sequences += [viterbi_seq]
-
+            
             return viterbi_sequences, sequence_lengths
 
         else:
-            labels_pred = self.sess.run(self.labels_pred, feed_dict=fd)
+            labels_pred, labels_pred_argmax = self.sess.run([self.labels_pred, self.labels_pred_argmax], feed_dict=fd)
 
-            return labels_pred, sequence_lengths
+            return labels_pred, sequence_lengths, labels_pred_argmax
 
 
     def run_epoch(self, train, dev, epoch):
@@ -280,6 +290,7 @@ class NERModel(BaseModel):
 
         # iterate over dataset
         for i, (words, labels) in enumerate(minibatches(train, batch_size)):
+            # print(labels)
             fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                     self.config.dropout)
 
@@ -313,10 +324,12 @@ class NERModel(BaseModel):
         accs = []
         correct_preds, total_correct, total_preds = 0., 0., 0.
         for words, labels in minibatches(test, self.config.batch_size):
-            labels_pred, sequence_lengths = self.predict_batch(words)
+            labels_pred, sequence_lengths, labels_pred_argmax = self.predict_batch(words)
 
-            for lab, lab_pred, length in zip(labels, labels_pred,
+            for lab, lab_pred, length in zip(labels, labels_pred_argmax,
                                              sequence_lengths):
+                print(lab)
+                print(lab_pred)
                 lab      = lab[:length]
                 lab_pred = lab_pred[:length]
                 accs    += [a==b for (a, b) in zip(lab, lab_pred)]
@@ -350,7 +363,7 @@ class NERModel(BaseModel):
         words = [self.config.processing_word(w) for w in words_raw]
         if type(words[0]) == tuple:
             words = zip(*words)
-        pred_ids, _ = self.predict_batch([words])
+        _, __, pred_ids = self.predict_batch([words])
         preds = [self.idx_to_tag[idx] for idx in list(pred_ids[0])]
 
         return preds
