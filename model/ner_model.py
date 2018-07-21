@@ -201,8 +201,7 @@ class NERModel(BaseModel):
         outside the graph.
         """
         if not self.config.use_crf:
-            self.labels_pred = tf.cast(tf.argmax(self.logits, axis=-1),
-                                       tf.int32)#tf.identity(self.logits)
+            self.labels_pred = tf.identity(self.logits)
             self.labels_pred_argmax = tf.cast(tf.argmax(self.logits, axis=-1),
                                        tf.int32)
 
@@ -215,8 +214,8 @@ class NERModel(BaseModel):
             self.trans_params = trans_params # need to evaluate it for decoding
             self.loss = tf.reduce_mean(-log_likelihood)
         else:
-            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
-                    logits=self.logits, labels=self.labels)
+            losses = tf.nn.softmax_cross_entropy_with_logits_v2(
+                    logits=self.logits, labels=self.labels_1hot)
             mask = tf.sequence_mask(self.sequence_lengths)
             losses = tf.boolean_mask(losses, mask)
             self.loss = tf.reduce_mean(losses)
@@ -327,10 +326,10 @@ class NERModel(BaseModel):
         for words, labels in minibatches(test, self.config.batch_size):
             labels_pred, sequence_lengths, labels_pred_argmax = self.predict_batch(words)
 
-            for lab, lab_pred, length in zip(labels, labels_pred,
+            for lab, lab_pred, length in zip(labels, labels_pred_argmax,
                                              sequence_lengths):
-                print(lab)
-                print(lab_pred)
+                # print(lab)
+                # print(lab_pred)
                 lab      = lab[:length]
                 lab_pred = lab_pred[:length]
                 accs    += [a==b for (a, b) in zip(lab, lab_pred)]
