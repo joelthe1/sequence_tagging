@@ -87,7 +87,13 @@ class NERModel(BaseModel):
         if labels is not None:
             labels, _ = pad_sequences(labels, 0)
             feed[self.labels] = labels
-            
+
+            n_value = len(self.idx_to_tag) #np.max(labels[0]) + 1
+            # labels_1hot = np.eye(n_value)[labels[0]]
+            labels_1hot = list(map(lambda x: np.eye(n_value)[x], labels))
+            labels_1hot, _ = pad_sequences(labels_1hot, np.zeros(n_value))
+            # print(labels_1hot)
+
             n_value = np.max(labels[0]) + 1
             labels_1hot = np.eye(n_value)[labels[0]]
             feed[self.labels_1hot] = labels_1hot
@@ -326,10 +332,10 @@ class NERModel(BaseModel):
         for words, labels in minibatches(test, self.config.batch_size):
             labels_pred, sequence_lengths, labels_pred_argmax = self.predict_batch(words)
 
+            print('\nlogits=', labels_pred)
             for lab, lab_pred, length in zip(labels, labels_pred_argmax,
                                              sequence_lengths):
-                # print(lab)
-                # print(lab_pred)
+                print('lab_pred=', lab_pred, '\n')
                 lab      = lab[:length]
                 lab_pred = lab_pred[:length]
                 accs    += [a==b for (a, b) in zip(lab, lab_pred)]
