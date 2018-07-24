@@ -15,7 +15,7 @@ class NERModel(BaseModel):
         super(NERModel, self).__init__(config)
         self.idx_to_tag = {idx: tag for tag, idx in
                            self.config.vocab_tags.items()}
-        # print(self.idx_to_tag)
+        print(self.idx_to_tag)
 
 
     def add_placeholders(self):
@@ -41,8 +41,12 @@ class NERModel(BaseModel):
                         name="labels")
 
         # shape = (batch size, max length of sentences in batch, tag length)
-        self.labels_1hot = tf.placeholder(tf.int32, shape=[None, None],
+        self.labels_1hot = tf.placeholder(tf.int32, shape=[None, None, None],
                                           name="labels_1hot")
+
+        # shape = (batch size, max length of sentences in batch, tag length)
+        # self.labels_proba = tf.placeholder(tf.int32, shape=[None, None, None],
+        #                                   name="labels_proba")        
 
         # hyper parameters
         self.dropout = tf.placeholder(dtype=tf.float32, shape=[],
@@ -87,15 +91,12 @@ class NERModel(BaseModel):
         if labels is not None:
             labels, _ = pad_sequences(labels, 0)
             feed[self.labels] = labels
+            # print('lables=', labels)
 
-            n_value = len(self.idx_to_tag) #np.max(labels[0]) + 1
-            # labels_1hot = np.eye(n_value)[labels[0]]
+            n_value = len(self.idx_to_tag)
             labels_1hot = list(map(lambda x: np.eye(n_value)[x], labels))
-            labels_1hot, _ = pad_sequences(labels_1hot, np.zeros(n_value))
-            # print(labels_1hot)
+            # print('1hot=', labels_1hot)
 
-            n_value = np.max(labels[0]) + 1
-            labels_1hot = np.eye(n_value)[labels[0]]
             feed[self.labels_1hot] = labels_1hot
 
         if lr is not None:
@@ -207,8 +208,9 @@ class NERModel(BaseModel):
         outside the graph.
         """
         if not self.config.use_crf:
-            self.labels_pred = tf.identity(self.logits)
-            self.labels_pred_argmax = tf.cast(tf.argmax(self.logits, axis=-1),
+            # self.labels_pred = tf.identity(self.logits)
+            self.labels_pred = tf.nn.softmax(self.logits)
+            self.labels_pred_argmax = tf.cast(tf.argmax(self.labels_pred, axis=-1),
                                        tf.int32)
 
 
@@ -295,8 +297,9 @@ class NERModel(BaseModel):
         prog = Progbar(target=nbatches)
 
         # iterate over dataset
+        # print('batch_size', batch_size)
         for i, (words, labels) in enumerate(minibatches(train, batch_size)):
-            # print(labels)
+            # print(words, labels)
             fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                     self.config.dropout)
 
@@ -330,12 +333,16 @@ class NERModel(BaseModel):
         accs = []
         correct_preds, total_correct, total_preds = 0., 0., 0.
         for words, labels in minibatches(test, self.config.batch_size):
-            labels_pred, sequence_lengths, labels_pred_argmax = self.predict_batch(words)
+            labels_pred, sequence_lengths, \
+                labels_pred_argmax = self.predict_batch(words)
 
-            print('\nlogits=', labels_pred)
+            # print('\nsequence_lengths=', sequence_lengths)
+            # print('\npreds=', labels_pred)
+            # print('\nargmax=', labels_pred_argmax)
+            # print('\nlogits=', self.logits)
             for lab, lab_pred, length in zip(labels, labels_pred_argmax,
                                              sequence_lengths):
-                print('lab_pred=', lab_pred, '\n')
+                # print('lab_pred=', lab_pred, '\n')
                 lab      = lab[:length]
                 lab_pred = lab_pred[:length]
                 accs    += [a==b for (a, b) in zip(lab, lab_pred)]
