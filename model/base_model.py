@@ -19,6 +19,9 @@ class BaseModel(object):
         self.saver  = None
 
 
+    def reset_graph(self):
+        tf.reset_default_graph()
+
     def reinitialize_weights(self, scope_name):
         """Reinitializes the weights of a given layer"""
         variables = tf.contrib.framework.get_variables(scope_name)
@@ -142,7 +145,7 @@ class BaseModel(object):
             test: instance of class Dataset
 
         """
-        self.logger.info("Testing model over test set")
+        # self.logger.info("Testing model over test set")
         metrics = self.run_evaluate(test)
         msg = " - ".join(["{} {:04.2f}".format(k, v)
                 for k, v in metrics.items()])

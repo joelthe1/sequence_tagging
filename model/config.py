@@ -74,10 +74,12 @@ class Config():
     filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
     filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
     filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
+    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"    
 
     # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
     # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
-    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes"
+    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes" #"/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes"
+    # filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
 
     # filename_dev = filename_test = filename_train = "data/test.txt" # test
 
@@ -92,12 +94,13 @@ class Config():
     train_embeddings = True
     nepochs          = 3
     dropout          = 0.5
-    batch_size       = 2
+    batch_size       = 1
     lr_method        = "adam"
     lr               = 0.001
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 3
+    niters           = 5
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars

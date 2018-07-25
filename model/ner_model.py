@@ -15,7 +15,7 @@ class NERModel(BaseModel):
         super(NERModel, self).__init__(config)
         self.idx_to_tag = {idx: tag for tag, idx in
                            self.config.vocab_tags.items()}
-        print(self.idx_to_tag)
+        # print(self.idx_to_tag)
 
 
     def add_placeholders(self):
