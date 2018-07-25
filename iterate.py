@@ -61,6 +61,7 @@ def evaluate():
     model.logger.info("\nEvaluation on Augment")
     model.evaluate(augment, augment_pred)
 
+    print('preds')
     print(augment_pred)
 
     # Clear memory
