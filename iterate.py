@@ -57,8 +57,11 @@ def evaluate():
     model.logger.info("\nEvaluation on Test")
     model.evaluate(test)
 
+    augment_pred = []
     model.logger.info("\nEvaluation on Augment")
-    model.evaluate(augment)
+    model.evaluate(augment, augment_pred)
+
+    print(augment_pred)
 
     # Clear memory
     model.reset_graph()

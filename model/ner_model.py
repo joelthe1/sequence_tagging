@@ -279,7 +279,7 @@ class NERModel(BaseModel):
             return labels_pred, sequence_lengths, labels_pred_argmax
 
 
-    def run_epoch(self, train, dev, epoch):
+    def run_epoch(self, train, dev, epoch, augment=None):
         """Performs one complete pass over the train set and evaluate on dev
 
         Args:
@@ -312,6 +312,11 @@ class NERModel(BaseModel):
             if i % 10 == 0:
                 self.file_writer.add_summary(summary, epoch*nbatches + i)
 
+        if augment != None:
+            for i, (words, labels) in enumerate(minibatches(augment, batch_size)):
+                fd, _ = self.get_feed_dict(words, labels, self.config.lr,
+                                           self.config.dropout)
+
         metrics = self.run_evaluate(dev)
         msg = " - ".join(["{} {:04.2f}".format(k, v)
                 for k, v in metrics.items()])
@@ -320,7 +325,7 @@ class NERModel(BaseModel):
         return metrics["f1"]
 
 
-    def run_evaluate(self, test):
+    def run_evaluate(self, test, augment_pred=None):
         """Evaluates performance on test set
 
         Args:
@@ -335,6 +340,11 @@ class NERModel(BaseModel):
         for words, labels in minibatches(test, self.config.batch_size):
             labels_pred, sequence_lengths, \
                 labels_pred_argmax = self.predict_batch(words)
+            print(sequence_lengths)
+            print(labels_pred)
+
+            if augment_pred != None:
+                augment_pred += [labels_pred]
 
             # print('\nsequence_lengths=', sequence_lengths)
             # print('\npreds=', labels_pred)

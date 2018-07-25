@@ -74,7 +74,7 @@ class Config():
     filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
     filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
     filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
-    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"    
+    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
 
     # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
     # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
@@ -94,7 +94,7 @@ class Config():
     train_embeddings = True
     nepochs          = 3
     dropout          = 0.5
-    batch_size       = 1
+    batch_size       = 2
     lr_method        = "adam"
     lr               = 0.001
     lr_decay         = 0.9

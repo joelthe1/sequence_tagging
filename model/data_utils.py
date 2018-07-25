@@ -67,6 +67,7 @@ class CoNLLDataset(object):
                     if len(words) != 0:
                         niter += 1
                         if self.max_iter is not None and niter > self.max_iter:
+                            words, tags = [], []
                             break
                         yield words, tags
                         words, tags = [], []
@@ -79,6 +80,8 @@ class CoNLLDataset(object):
                         tag = self.processing_tag(tag)
                     words += [word]
                     tags += [tag]
+            if len(words) > 0:
+                yield words, tags
 
 
     def __len__(self):
