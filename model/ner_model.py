@@ -111,6 +111,7 @@ class NERModel(BaseModel):
 
         return feed, sequence_lengths
 
+
     def merge(self, labels_1hot, augment_pred, O_idx):
         for sentence in range(len(augment_pred)):
             for word in range(augment_pred[0].shape[0]):
@@ -331,6 +332,7 @@ class NERModel(BaseModel):
                 augment_batch = augment_pred[batch_size*i: (batch_size*i)+batch_size]
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                                            self.config.dropout, augment_pred=augment_batch)
+
                 _, train_loss, summary = self.sess.run(
                     [self.train_op, self.loss, self.merged], feed_dict=fd)
 
@@ -366,7 +368,7 @@ class NERModel(BaseModel):
 
             # collect precition probability vectors for augmented data
             if augment_pred != None:
-                augment_pred += [pred for pred in labels_pred]
+                augment_pred += [pred[:sequence_lengths[idx]] for idx, pred in enumerate(labels_pred)]
 
             # print('\nsequence_lengths=', sequence_lengths)
             # print('\npreds=', labels_pred)
