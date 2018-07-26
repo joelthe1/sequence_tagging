@@ -55,7 +55,7 @@ class NERModel(BaseModel):
                         name="lr")
 
 
-    def get_feed_dict(self, words, labels=None, lr=None, dropout=None):
+    def get_feed_dict(self, words, labels=None, lr=None, dropout=None, augment_pred=None):
         """Given some data, pad it and build a feed dictionary
 
         Args:
@@ -89,7 +89,8 @@ class NERModel(BaseModel):
             feed[self.word_lengths] = word_lengths
 
         if labels is not None:
-            labels, _ = pad_sequences(labels, 0)
+            O_idx = list(filter(lambda x: self.idx_to_tag[x] == 'O', self.idx_to_tag))[0]
+            labels, _ = pad_sequences(labels, O_idx)
             feed[self.labels] = labels
             # print('lables=', labels)
 
@@ -97,7 +98,10 @@ class NERModel(BaseModel):
             labels_1hot = list(map(lambda x: np.eye(n_value)[x], labels))
             # print('1hot=', labels_1hot)
 
-            feed[self.labels_1hot] = labels_1hot
+            if augment_pred == None:
+                feed[self.labels_1hot] = labels_1hot
+            else:
+                feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
 
         if lr is not None:
             feed[self.lr] = lr
@@ -106,6 +110,13 @@ class NERModel(BaseModel):
             feed[self.dropout] = dropout
 
         return feed, sequence_lengths
+
+    def merge(self, labels_1hot, augment_pred, O_idx):
+        for sentence in range(len(augment_pred)):
+            for word in range(augment_pred[0].shape[0]):
+                if labels_1hot[sentence][word, O_idx] == 1.0:
+                    labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
+        return labels_1hot
 
 
     def add_word_embeddings_op(self):
@@ -279,13 +290,16 @@ class NERModel(BaseModel):
             return labels_pred, sequence_lengths, labels_pred_argmax
 
 
-    def run_epoch(self, train, dev, epoch, augment=None):
+    def run_epoch(self, train, dev, epoch, augment=None, augment_pred=None):
         """Performs one complete pass over the train set and evaluate on dev
 
         Args:
             train: dataset that yields tuple of sentences, tags
             dev: dataset
             epoch: (int) index of the current epoch
+            augment: dataset
+            augment_pred: the predictions from the model trained in the 
+                          previous iteration
 
         Returns:
             f1: (python float), score to select model on, higher is better
@@ -314,8 +328,17 @@ class NERModel(BaseModel):
 
         if augment != None:
             for i, (words, labels) in enumerate(minibatches(augment, batch_size)):
+                augment_batch = augment_pred[batch_size*i: (batch_size*i)+batch_size]
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
-                                           self.config.dropout)
+                                           self.config.dropout, augment_pred=augment_batch)
+                _, train_loss, summary = self.sess.run(
+                    [self.train_op, self.loss, self.merged], feed_dict=fd)
+
+                prog.update(i + 1, [("augment train loss", train_loss)])
+
+                # tensorboard
+                if i % 10 == 0:
+                    self.file_writer.add_summary(summary, epoch*nbatches + i)
 
         metrics = self.run_evaluate(dev)
         msg = " - ".join(["{} {:04.2f}".format(k, v)
@@ -340,11 +363,10 @@ class NERModel(BaseModel):
         for words, labels in minibatches(test, self.config.batch_size):
             labels_pred, sequence_lengths, \
                 labels_pred_argmax = self.predict_batch(words)
-            print(sequence_lengths)
-            print(labels_pred)
 
+            # collect precition probability vectors for augmented data
             if augment_pred != None:
-                augment_pred += [labels_pred]
+                augment_pred += [pred for pred in labels_pred]
 
             # print('\nsequence_lengths=', sequence_lengths)
             # print('\npreds=', labels_pred)

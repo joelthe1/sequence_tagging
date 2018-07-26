@@ -27,7 +27,11 @@ def train():
     model.reset_graph()
     del model
 
-    evaluate()
+    augment_pred = evaluate()
+    model = NERModel(config)
+    model.build()
+
+    model.train(train,dev, augment, augment_pred)
 
     # for i in range(config.niters):
     #     # build model
@@ -61,12 +65,14 @@ def evaluate():
     model.logger.info("\nEvaluation on Augment")
     model.evaluate(augment, augment_pred)
 
-    print('preds')
-    print(augment_pred)
-
     # Clear memory
     model.reset_graph()
     del model
+
+    # print('preds')
+    # print(augment_pred)
+
+    return augment_pred
     
 if __name__ == "__main__":
     train()

@@ -105,7 +105,7 @@ class BaseModel(object):
                 self.sess.graph)
 
 
-    def train(self, train, dev, augment=None):
+    def train(self, train, dev, augment=None, augment_pred=None):
         """Performs training with early stopping and lr exponential decay
 
         Args:
@@ -124,7 +124,7 @@ class BaseModel(object):
             if augment == None:
                 score = self.run_epoch(train, dev, epoch)
             else:
-                score = self.run_epoch(train, dev, epoch, augment)
+                score = self.run_epoch(train, dev, epoch, augment, augment_pred)
             self.config.lr *= self.config.lr_decay # decay learning rate
 
             # early stopping and saving best parameters
