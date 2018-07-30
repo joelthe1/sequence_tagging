@@ -51,7 +51,7 @@ def main():
     vocab_chars = get_char_vocab(train)
     augment = CoNLLDataset(config.filename_augment)
     augment_vocab_chars = get_char_vocab(augment)
-    vocab_chars = vocab_chars & augment_vocab_chars
+    vocab_chars = vocab_chars | augment_vocab_chars
     
     write_vocab(vocab_chars, config.filename_chars)
 

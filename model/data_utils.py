@@ -41,7 +41,7 @@ class CoNLLDataset(object):
 
     """
     def __init__(self, filename, processing_word=None, processing_tag=None,
-                 max_iter=None):
+                 max_iter=None, preds=None):
         """
         Args:
             filename: path to the file
@@ -55,21 +55,28 @@ class CoNLLDataset(object):
         self.processing_tag = processing_tag
         self.max_iter = max_iter
         self.length = None
+        self.preds = preds
 
 
     def __iter__(self):
         niter = 0
+        preds = None
         with open(self.filename) as f:
             words, tags = [], []
             for line in f:
                 line = line.strip()
                 if (len(line) == 0 or line.startswith("-DOCSTART-")):
                     if len(words) != 0:
+                        if self.preds != None:
+                            preds = np.copy(self.preds[niter])
                         niter += 1
                         if self.max_iter is not None and niter > self.max_iter:
                             words, tags = [], []
                             break
-                        yield words, tags
+                        if self.preds != None:
+                            yield words, tags, preds
+                        else:
+                            yield words, tags
                         words, tags = [], []
                 else:
                     ls = line.split('\t')
@@ -81,7 +88,10 @@ class CoNLLDataset(object):
                     words += [word]
                     tags += [tag]
             if len(words) > 0:
-                yield words, tags
+                if self.preds != None:
+                    yield words, tags, np.copy(self.preds[niter])
+                else:
+                    yield words, tags
 
 
     def __len__(self):
@@ -341,7 +351,7 @@ def pad_sequences(sequences, pad_tok, nlevels=1):
     return sequence_padded, sequence_length
 
 
-def minibatches(data, minibatch_size):
+def minibatches(datasets, minibatch_size, preds=None):
     """
     Args:
         data: generator of (sentence, tags) tuples
@@ -351,20 +361,26 @@ def minibatches(data, minibatch_size):
         list of tuples
 
     """
-    x_batch, y_batch = [], []
-    for (x, y) in data:
-        if len(x_batch) == minibatch_size:
-            yield x_batch, y_batch
-            x_batch, y_batch = [], []
+    for data_idx, data in enumerate(datasets):
+        x_batch, y_batch, pred_batch = [], [], []
+        if data_idx == 1 and len(data) == 0:
+            break
+        for sent_idx, (x, y) in enumerate(data):
+            if len(x_batch) == minibatch_size:
+                yield x_batch, y_batch, pred_batch
+                x_batch, y_batch, pred_batch = [], [], []
 
-        if type(x[0]) == tuple:
-            x = zip(*x)
-        x_batch += [x]
-        y_batch += [y]
+            if type(x[0]) == tuple:
+                x = zip(*x)
+            x_batch += [x]
+            y_batch += [y]
+            
+            if data_idx == 1 and preds != None:
+                pred_batch += [np.copy(preds[sent_idx])]
 
-    if len(x_batch) != 0:
-        yield x_batch, y_batch
-
+        if len(x_batch) != 0:
+            yield x_batch, y_batch, pred_batch
+            
 
 def get_chunk_type(tok, idx_to_tag):
     """

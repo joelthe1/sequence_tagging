@@ -13,8 +13,11 @@ def train():
                          config.processing_tag, config.max_iter)
     augment = CoNLLDataset(config.filename_augment, config.processing_word,
                            config.processing_tag, config.max_iter)
+    augment_occluded = CoNLLDataset(config.filename_augment_occluded, config.processing_word,
+                           config.processing_tag, config.max_iter)
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
+
     # build model
     model = NERModel(config)
     model.build()
@@ -24,23 +27,27 @@ def train():
     # train model
     model.train(train, dev)
 
+    # clear memory
     model.reset_graph()
     del model
 
+    # evaluate model
     augment_pred = evaluate()
-    model = NERModel(config)
-    model.build()
 
-    model.train(train,dev, augment, augment_pred)
+    for i in range(config.niters):
+        print('\n\nIteration', i+1)
+        # build model
+        model = NERModel(config)
+        model.build()
 
-    # for i in range(config.niters):
-    #     # build model
-    #     model = NERModel(config)
-    #     model.build()
+        # train model
+        model.train(train, dev, augment, augment_occluded, augment_pred)
 
-    #     # train model
-    #     model.train(train, dev)
-    #     evaluate()
+        # clear memory
+        model.reset_graph()
+        del model
+
+        augment_pred = evaluate()
 
 def evaluate():
     # create instance of config
@@ -48,6 +55,8 @@ def evaluate():
 
     # create dataset
     augment = CoNLLDataset(config.filename_augment, config.processing_word,
+                           config.processing_tag, config.max_iter)
+    augment_occluded = CoNLLDataset(config.filename_augment_occluded, config.processing_word,
                            config.processing_tag, config.max_iter)
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
@@ -68,9 +77,6 @@ def evaluate():
     # Clear memory
     model.reset_graph()
     del model
-
-    # print('preds')
-    # print(augment_pred)
 
     return augment_pred
     
