@@ -26,6 +26,11 @@ def get_logger(filename):
     return logger
 
 
+def remove_logger(filename):
+    handler = logging.FileHandler(filename)
+    logging.getLogger().removeHandler(handler)
+
+
 class Progbar(object):
     """Progbar class copied from keras (https://github.com/fchollet/keras/)
 

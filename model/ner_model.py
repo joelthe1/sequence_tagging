@@ -306,38 +306,11 @@ class NERModel(BaseModel):
         # progbar stuff for logging
         batch_size = self.config.batch_size
 
-
-        # iterate over dataset
-        # print('batch_size', batch_size)
-        
-        # if augment != None:
-        #     lr_augment_scaler = 0.3
-        #     nbatches = (len(augment_occluded) + batch_size - 1) // batch_size
-        #     prog = Progbar(target=nbatches)
-            
-            # print('augment')
-            # for i, (words, labels) in enumerate(minibatches(augment_occluded, batch_size)):
-            #     augment_batch = augment_pred[batch_size*i: (batch_size*i)+batch_size]
-            #     fd, _ = self.get_feed_dict(words, labels, self.config.lr * lr_augment_scaler,
-            #                                self.config.dropout, augment_pred=augment_batch)
-
-            #     # print('labels', labels)
-            #     # print('augment_pred', augment_pred)
-            #     # print('labels_1hot', fd[self.labels_1hot])
-            #     _, train_loss, summary = self.sess.run(
-            #         [self.train_op, self.loss, self.merged], feed_dict=fd)
-
-            #     prog.update(i + 1, [("augment train loss", train_loss)])
-
-            #     # tensorboard
-            #     if i % 10 == 0:
-            #         self.file_writer.add_summary(summary, epoch*nbatches + i)
-
         nbatches = (len(train) + len(augment_occluded) + batch_size - 1) // batch_size
         prog = Progbar(target=nbatches)
 
         for i, (words, labels, preds) in enumerate(minibatches([train, augment_occluded], batch_size, augment_pred)):
-
+            
             if len(preds) > 0:
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                                            self.config.dropout, augment_pred=preds)
@@ -349,7 +322,7 @@ class NERModel(BaseModel):
                 [self.train_op, self.loss, self.merged], feed_dict=fd)
 
             if len(preds) > 0:
-                prog.update(i + 1, [("augmentloss", train_loss)])
+                prog.update(i + 1, [("augment loss", train_loss)])
             else:
                 prog.update(i + 1, [("train loss", train_loss)])
 
@@ -410,7 +383,7 @@ class NERModel(BaseModel):
         f1  = 2 * p * r / (p + r) if correct_preds > 0 else 0
         acc = np.mean(accs)
 
-        return {"acc": 100*acc, "f1": 100*f1}
+        return {"acc": 100*acc, "f1": 100*f1, "prec": p, "rec": r}
 
 
     def predict(self, words_raw):

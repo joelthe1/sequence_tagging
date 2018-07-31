@@ -18,6 +18,14 @@ class BaseModel(object):
         self.sess   = None
         self.saver  = None
 
+    
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *err):
+        self.reset_graph()
+
 
     def reset_graph(self):
         tf.reset_default_graph()
