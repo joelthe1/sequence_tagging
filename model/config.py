@@ -75,19 +75,17 @@ class Config():
     use_pretrained = True
 
     # dataset
-    filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
-    filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
-    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
+    # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
+    # filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    # filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
 
-    # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
-    # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
-    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
-    # filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
-    # filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train-occluded.iobes"
-
-    # filename_dev = filename_test = filename_train = "data/test.txt" # test
+    filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
+    filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
+    filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
+    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
+    filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train-occluded.iobes"
 
     max_iter = None # if not None, max number of examples in Dataset
 
@@ -98,15 +96,16 @@ class Config():
 
     # training
     train_embeddings = True
-    nepochs          = 3
+    nepochs          = 40
     dropout          = 0.5
-    batch_size       = 2
+    batch_size       = 128
     lr_method        = "adam"
-    lr               = 0.001
+    lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
-    nepoch_no_imprv  = 20
-    niters           = 2
+    nepoch_no_imprv  = 40
+    niters           = 3
+    proba_threshold  = 0.2 # None otherwise
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars

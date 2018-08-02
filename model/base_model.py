@@ -132,7 +132,8 @@ class BaseModel(object):
             if augment == None:
                 score = self.run_epoch(train, dev, epoch)
             else:
-                score = self.run_epoch(train, dev, epoch, augment, augment_occluded, augment_pred)
+                score = self.run_epoch(train, dev, epoch,
+                                       augment, augment_occluded, augment_pred)
             self.config.lr *= self.config.lr_decay # decay learning rate
 
             # early stopping and saving best parameters

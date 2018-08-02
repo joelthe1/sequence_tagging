@@ -51,7 +51,8 @@ class NERModel(BaseModel):
                         name="lr")
 
 
-    def get_feed_dict(self, words, labels=None, lr=None, dropout=None, augment_pred=None):
+    def get_feed_dict(self, words, labels=None, lr=None,
+                      dropout=None, augment_pred=None, proba_threshold=None):
         """Given some data, pad it and build a feed dictionary
 
         Args:
@@ -96,8 +97,10 @@ class NERModel(BaseModel):
 
             if augment_pred == None:
                 feed[self.labels_1hot] = labels_1hot
-            else:
+            elif proba_threshold == None:
                 feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
+            else:
+                feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold)
 
         if lr is not None:
             feed[self.lr] = lr
@@ -114,6 +117,18 @@ class NERModel(BaseModel):
                 if labels_1hot[sentence][word, O_idx] == 1.0:
                     labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
         return labels_1hot
+
+
+    def redistribute_proba(self, y, threshold=0.3):
+        if len(y[y>0.98]) > 0:
+            return y
+
+        # if numpy.random.randint(2) == 0:
+        if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
+            y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
+            y[y<=threshold] = 0.0
+
+        return y
 
 
     def add_word_embeddings_op(self):
@@ -309,15 +324,22 @@ class NERModel(BaseModel):
         nbatches = (len(train) + len(augment_occluded) + batch_size - 1) // batch_size
         prog = Progbar(target=nbatches)
 
-        for i, (words, labels, preds) in enumerate(minibatches([train, augment_occluded], batch_size, augment_pred)):
+        for i, (words, labels, preds) in enumerate(
+                minibatches([train, augment_occluded], batch_size, augment_pred)):
             
             if len(preds) > 0:
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
-                                           self.config.dropout, augment_pred=preds)
+                                           self.config.dropout,
+                                           augment_pred=preds,
+                                           proba_threshold=self.config.proba_threshold)
+                # print(fd[self.labels_1hot])
+                # print('\nwords', words)
+                # print('labels', labels)
+                # print('preds', preds)
             else:
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                                            self.config.dropout)
-            
+
             _, train_loss, summary = self.sess.run(
                 [self.train_op, self.loss, self.merged], feed_dict=fd)
 

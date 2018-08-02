@@ -2,6 +2,8 @@ from model.data_utils import CoNLLDataset
 from model.ner_model import NERModel
 from model.config import Config
 
+import pickle
+
 # create instance of config
 config = Config()
         
@@ -59,6 +61,9 @@ def train():
 
             # train model
             # print(augment_pred)
+            with open('list-{}.pkl'.format(i), 'wb') as f:
+                pickle.dump(augment_pred, f)
+            
             model.train(train, dev, augment, augment_occluded, augment_pred)
         
         # clear memory
@@ -66,6 +71,7 @@ def train():
 
         augment_pred = evaluate()
 
+        
 def evaluate():
     augment_pred = []
     with NERModel(config) as model:
