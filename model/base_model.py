@@ -18,17 +18,10 @@ class BaseModel(object):
         self.sess   = None
         self.saver  = None
 
-    
-    def __enter__(self):
-        return self
-
-
-    def __exit__(self, *err):
-        self.reset_graph()
-
 
     def reset_graph(self):
         tf.reset_default_graph()
+
 
     def reinitialize_weights(self, scope_name):
         """Reinitializes the weights of a given layer"""
@@ -91,8 +84,8 @@ class BaseModel(object):
 
     def save_session(self):
         """Saves session = weights"""
-        if not os.path.exists(self.config.dir_model):
-            os.makedirs(self.config.dir_model)
+        if not os.path.exists(self.config.dir_output):
+            os.makedirs(self.config.dir_output)
         self.saver.save(self.sess, self.config.dir_model)
 
 
@@ -113,7 +106,7 @@ class BaseModel(object):
                 self.sess.graph)
 
 
-    def train(self, train, dev, augment=None, augment_occluded=None, augment_pred=None):
+    def train(self, train, dev, augment_occluded=None, augment_pred=None):
         """Performs training with early stopping and lr exponential decay
 
         Args:
@@ -129,11 +122,11 @@ class BaseModel(object):
             self.logger.info("Epoch {:} out of {:}".format(epoch + 1,
                         self.config.nepochs))
 
-            if augment == None:
+            if augment_occluded == None:
                 score = self.run_epoch(train, dev, epoch)
             else:
                 score = self.run_epoch(train, dev, epoch,
-                                       augment, augment_occluded, augment_pred)
+                                       augment_occluded, augment_pred)
             self.config.lr *= self.config.lr_decay # decay learning rate
 
             # early stopping and saving best parameters

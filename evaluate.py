@@ -2,6 +2,7 @@ from model.data_utils import CoNLLDataset
 from model.ner_model import NERModel
 from model.config import Config
 
+import pickle
 
 def align_data(data):
     """Given dict with lists, creates aligned strings
@@ -79,9 +80,21 @@ def main():
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
 
-    # evaluate and interact
+    augment = CoNLLDataset(config.filename_augment, config.processing_word,
+                           config.processing_tag, config.max_iter)
+
+    # evaluate on test
+    model.logger.info("\nEvaluation on Test")
     model.evaluate(test)
-    interactive_shell(model)
+
+    # evaluate on augment and save preds
+    model.logger.info("\nEvaluation on Augment")
+    augment_pred = []    
+    model.evaluate(augment, augment_pred)
+
+    # save augment predictions
+    with open(config.dir_output + 'preds.pkl', 'wb') as f:
+        pickle.dump(augment_pred, f)
 
 
 if __name__ == "__main__":

@@ -302,7 +302,7 @@ class NERModel(BaseModel):
             return labels_pred, sequence_lengths, labels_pred_argmax, temp
 
 
-    def run_epoch(self, train, dev, epoch, augment=[],\
+    def run_epoch(self, train, dev, epoch, \
                   augment_occluded=[], augment_pred=None):
         """Performs one complete pass over the train set and evaluate on dev
 
@@ -310,7 +310,6 @@ class NERModel(BaseModel):
             train: dataset that yields tuple of sentences, tags
             dev: dataset
             epoch: (int) index of the current epoch
-            augment: dataset
             augment_pred: the predictions from the model trained in the 
                           previous iteration
 
