@@ -80,17 +80,24 @@ def main():
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
 
-    augment = CoNLLDataset(config.filename_augment, config.processing_word,
+    augment = CoNLLDataset(config.filename_augment_10, config.processing_word,
                            config.processing_tag, config.max_iter)
+
+    augment_next = CoNLLDataset(config.filename_augment_next_10, config.processing_word,
+                        config.processing_tag, config.max_iter)
 
     # evaluate on test
     model.logger.info("\nEvaluation on Test")
     model.evaluate(test)
 
-    # evaluate on augment and save preds
+    # evaluate on current augment
     model.logger.info("\nEvaluation on Augment")
-    augment_pred = []    
-    model.evaluate(augment, augment_pred)
+    model.evaluate(augment)
+
+    # evaluate on the next 10% augment and save predictions
+    model.logger.info("\nEvaluation on the next 10% Augment")
+    augment_pred = []
+    model.evaluate(augment_next, augment_pred)
 
     # save augment predictions
     with open(config.dir_output + 'preds.pkl', 'wb') as f:

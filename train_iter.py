@@ -12,13 +12,14 @@ def main():
     # build model
     model = NERModel(config)
     model.build()
+    model.restore_session(config.dir_model)
 
     # create datasets
     dev   = CoNLLDataset(config.filename_dev, config.processing_word,
                          config.processing_tag, config.max_iter)
     train = CoNLLDataset(config.filename_train, config.processing_word,
                          config.processing_tag, config.max_iter)
-    augment_occluded = CoNLLDataset(config.filename_augment_occluded,
+    augment_occluded = CoNLLDataset(config.filename_augment_occluded_10,
                                     config.processing_word,
                                     config.processing_tag, config.max_iter)
 
