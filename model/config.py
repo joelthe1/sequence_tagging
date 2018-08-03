@@ -86,11 +86,11 @@ class Config():
     filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
     filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
 
-    split = 'a'
+    split = 'd'
     filename_augment_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
     filename_augment_occluded_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
 
-    filename_augment_next_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format('b')
+    filename_augment_next_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format('d')
     
     
 
@@ -103,14 +103,14 @@ class Config():
 
     # training
     train_embeddings = True
-    nepochs          = 10
+    nepochs          = 40
     dropout          = 0.5
-    batch_size       = 128
+    batch_size       = 64
     lr_method        = "adam"
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
-    nepoch_no_imprv  = 5
+    nepoch_no_imprv  = 10
     proba_threshold  = None # None otherwise
 
     # model hyperparameters
