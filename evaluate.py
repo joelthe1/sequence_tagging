@@ -80,27 +80,44 @@ def main():
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
 
-    augment = CoNLLDataset(config.filename_augment_10, config.processing_word,
-                           config.processing_tag, config.max_iter)
+    augment = []
+    for split in config.augment_list:
+        augment.append(
+            CoNLLDataset(config.filename_augment_10.get(split),
+                         config.processing_word,
+                         config.processing_tag, config.max_iter))
 
-    augment_next = CoNLLDataset(config.filename_augment_next_10, config.processing_word,
-                        config.processing_tag, config.max_iter)
+    next_split = min(len(config.augment_list), len(config.splits)-1)
+    next_augment = CoNLLDataset(config.filename_augment_10.get(config.splits[next_split]),
+                                config.processing_word,
+                                config.processing_tag, config.max_iter)
+        
 
     # evaluate on test
     model.logger.info("\nEvaluation on Test")
     model.evaluate(test)
 
-    # evaluate on current augment
-    model.logger.info("\nEvaluation on Augment")
-    model.evaluate(augment)
+    if len(config.augment_list) > 0:
+        # evaluate on current augment
+        augment_pred = []
+        model.logger.info("\nEvaluation on current Augment split: {}"
+                          .format(config.augment_list[-1]))
+        model.evaluate(augment[-1], augment_pred)
 
-    # evaluate on the next 10% augment and save predictions
-    model.logger.info("\nEvaluation on the next 10% Augment")
+        # save current augment predictions
+        with open(config.dir_output + 'preds-{}.pkl'
+                  .format(config.augment_list[-1]), 'wb') as f:
+            pickle.dump(augment_pred, f)
+
+
+    # evaluate on the next augment split and save predictions
     augment_pred = []
-    model.evaluate(augment_next, augment_pred)
+    model.logger.info("\nEvaluation on the next Augment split: {}"
+                      .format(config.splits[next_split]))
+    model.evaluate(next_augment, augment_pred)
 
-    # save augment predictions
-    with open(config.dir_output + 'preds.pkl', 'wb') as f:
+    # save next augment split predictions
+    with open(config.dir_output + 'preds-{}.pkl'.format(config.splits[next_split]), 'wb') as f:
         pickle.dump(augment_pred, f)
 
 

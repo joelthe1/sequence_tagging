@@ -356,11 +356,15 @@ def minibatches(datasets, minibatch_size, preds=None):
     Args:
         data: generator of (sentence, tags) tuples
         minibatch_size: (int)
+        preds: list of predictions of augmented datasets ([y_dataset_1, y_dataset_2, ..])
 
     Yields:
         list of tuples
 
     """
+    # print(len(preds), len(preds[0]))
+    # print(len(preds[0][0]))
+
     for data_idx, data in enumerate(datasets):
         x_batch, y_batch, pred_batch = [], [], []
         if data_idx == 1 and len(data) == 0:
@@ -375,8 +379,9 @@ def minibatches(datasets, minibatch_size, preds=None):
             x_batch += [x]
             y_batch += [y]
             
-            if data_idx == 1 and preds != None:
-                pred_batch += [np.copy(preds[sent_idx])]
+            if data_idx >= 1 and preds != None:
+                # print(len(preds[data_idx-1][sent_idx]))
+                pred_batch += [np.copy(preds[data_idx-1][sent_idx])]
 
         if len(x_batch) != 0:
             yield x_batch, y_batch, pred_batch

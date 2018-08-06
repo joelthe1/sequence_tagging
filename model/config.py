@@ -86,11 +86,24 @@ class Config():
     filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
     filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
 
-    split = 'd'
-    filename_augment_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
-    filename_augment_occluded_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
+    # list of all the splits in the augmented data
+    splits = ['a', 'b', 'c', 'd']
 
-    filename_augment_next_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format('d')
+    filename_augment_10, filename_augment_occluded_10 = {}, {}
+
+    for split in splits:
+        filename_augment_10[split] = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
+        filename_augment_occluded_10[split] = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
+
+    # list of splits to use in the current run
+    # must be subset of splits.
+    augment_list = []
+
+    # split = 'd'
+    # filename_augment_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
+    # filename_augment_occluded_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
+
+    # filename_augment_next_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format('d')
     
     
 
@@ -103,7 +116,7 @@ class Config():
 
     # training
     train_embeddings = True
-    nepochs          = 40
+    nepochs          = 50
     dropout          = 0.5
     batch_size       = 64
     lr_method        = "adam"

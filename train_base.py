@@ -2,10 +2,14 @@ from model.data_utils import CoNLLDataset
 from model.ner_model import NERModel
 from model.config import Config
 
+from subprocess import run
 
 def main():
     # create instance of config
     config = Config()
+
+    # clean-up any previous predictions
+    run('rm {}preds-*.pkl'.format(config.dir_output), shell=True)
 
     # build model
     model = NERModel(config)

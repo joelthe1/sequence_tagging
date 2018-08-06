@@ -19,21 +19,24 @@ def main():
                          config.processing_tag, config.max_iter)
     train = CoNLLDataset(config.filename_train, config.processing_word,
                          config.processing_tag, config.max_iter)
-    augment_occluded = CoNLLDataset(config.filename_augment_occluded_10,
+
+    augment_occluded, augment_preds = [], []
+    for split in config.augment_list:
+        augment_occluded.append(CoNLLDataset(
+            config.filename_augment_occluded_10.get(split),
                                     config.processing_word,
-                                    config.processing_tag, config.max_iter)
+                                    config.processing_tag, config.max_iter))
 
+        with open(config.dir_output + 'preds-{}.pkl'.format(split), 'rb') as f:
+            augment_preds.append(pickle.load(f))
+            if len(augment_preds[-1]) == 0:
+                raise AttributeError('Error while trying to \
+                load augment predictions from pickle.')
 
-    # load preds
-    augment_pred = []
-    with open(config.dir_output + 'preds.pkl', 'rb') as f:
-        augment_pred = pickle.load(f)
-
-    if len(augment_pred) == 0:
-        raise AttributeError('Error while trying to load augment predictions from pickle.')
-
+    # print(len(augment_preds))
+    
     # train model
-    model.train(train, dev, augment_occluded, augment_pred)
+    model.train(train, dev, augment_occluded, augment_preds)
 
 
 if __name__ == "__main__":

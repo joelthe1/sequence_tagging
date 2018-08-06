@@ -303,15 +303,16 @@ class NERModel(BaseModel):
 
 
     def run_epoch(self, train, dev, epoch, \
-                  augment_occluded=[], augment_pred=None):
+                  augment_occluded=[], augment_preds=None):
         """Performs one complete pass over the train set and evaluate on dev
 
         Args:
             train: dataset that yields tuple of sentences, tags
             dev: dataset
             epoch: (int) index of the current epoch
-            augment_pred: the predictions from the model trained in the 
-                          previous iteration
+            augment_occluded: list of the augment datasets
+            augment_preds: list of predictions from the model trained on augment_occluded in the 
+                          previous iterations
 
         Returns:
             f1: (python float), score to select model on, higher is better
@@ -320,11 +321,12 @@ class NERModel(BaseModel):
         # progbar stuff for logging
         batch_size = self.config.batch_size
 
-        nbatches = (len(train) + len(augment_occluded) + batch_size - 1) // batch_size
+        nbatches = (len(train) + sum([len(x) for x in augment_occluded]) + batch_size - 1) // batch_size
         prog = Progbar(target=nbatches)
 
+        full_data = [train] + [x for x in augment_occluded]
         for i, (words, labels, preds) in enumerate(
-                minibatches([train, augment_occluded], batch_size, augment_pred)):
+                minibatches(full_data, batch_size, augment_preds)):
             
             if len(preds) > 0:
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
