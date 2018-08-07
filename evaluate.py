@@ -80,6 +80,9 @@ def main():
     test  = CoNLLDataset(config.filename_test, config.processing_word,
                          config.processing_tag, config.max_iter)
 
+    dev  = CoNLLDataset(config.filename_dev, config.processing_word,
+                         config.processing_tag, config.max_iter)
+
     augment = []
     for split in config.augment_list:
         augment.append(
@@ -93,14 +96,18 @@ def main():
                                 config.processing_tag, config.max_iter)
         
 
+    # evaluate on dev
+    model.results_logger.info("\nDev")
+    model.evaluate(dev)
+
     # evaluate on test
-    model.logger.info("\nEvaluation on Test")
+    model.results_logger.info("\nTest")
     model.evaluate(test)
 
     if len(config.augment_list) > 0:
         # evaluate on current augment
         augment_pred = []
-        model.logger.info("\nEvaluation on current Augment split: {}"
+        model.results_logger.info("\nAugment split: {}"
                           .format(config.augment_list[-1]))
         model.evaluate(augment[-1], augment_pred)
 
@@ -112,7 +119,7 @@ def main():
 
     # evaluate on the next augment split and save predictions
     augment_pred = []
-    model.logger.info("\nEvaluation on the next Augment split: {}"
+    model.results_logger.info("\nNext Augment split: {}"
                       .format(config.splits[next_split]))
     model.evaluate(next_augment, augment_pred)
 

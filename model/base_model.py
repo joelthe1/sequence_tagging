@@ -15,6 +15,7 @@ class BaseModel(object):
         """
         self.config = config
         self.logger = config.logger
+        self.results_logger = config.results_logger
         self.sess   = None
         self.saver  = None
 
@@ -152,6 +153,9 @@ class BaseModel(object):
         """
         # self.logger.info("Testing model over test set")
         metrics = self.run_evaluate(test, augment_pred)
-        msg = " - ".join(["{} {:04.2f}".format(k, v)
-                for k, v in metrics.items()])
-        self.logger.info(msg)
+        # msg = " - ".join(["{} {:04.2f}".format(k, v)
+        #                 for k, v in metrics.items()])
+
+        fmt = "|{:04.2f}"*3
+        self.results_logger.info(
+            fmt.format(metrics['f1'], metrics['prec'], metrics['rec']))

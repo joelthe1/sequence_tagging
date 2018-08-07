@@ -21,6 +21,7 @@ class Config():
 
         # create instance of logger
         self.logger = get_logger(self.path_log)
+        self.results_logger = get_logger(self.path_results, logger_name='results')
 
         # load if requested (default)
         if load:
@@ -63,6 +64,7 @@ class Config():
     dir_output = "/lfs1/joel/experiments/sequence_tagging/model/"
     dir_model  = dir_output + "modelweights"
     path_log   = dir_output + "log.txt"
+    path_results = dir_output + "results.txt"
 
     # embeddings
     dim_word = 300
@@ -75,16 +77,17 @@ class Config():
     use_pretrained = True
 
     # dataset
-    # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
-    # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
-    # filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    # filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
+    filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
+    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
+    filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
 
-    filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
-    filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
-    filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
-    filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
+    # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
+    # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
+    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
+    # filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
 
     # list of all the splits in the augmented data
     splits = ['a', 'b', 'c', 'd']
@@ -118,12 +121,12 @@ class Config():
     train_embeddings = True
     nepochs          = 50
     dropout          = 0.5
-    batch_size       = 64
+    batch_size       = 32
     lr_method        = "adam"
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
-    nepoch_no_imprv  = 10
+    nepoch_no_imprv  = 100
     proba_threshold  = None # None otherwise
 
     # model hyperparameters
