@@ -1,3 +1,4 @@
+import os
 import time
 import sys
 import logging
@@ -37,6 +38,10 @@ def remove_logger(filename):
     handler = logging.FileHandler(filename)
     logging.getLogger().removeHandler(handler)
 
+
+def ensure_path_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 class Progbar(object):
     """Progbar class copied from keras (https://github.com/fchollet/keras/)

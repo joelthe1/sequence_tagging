@@ -1,7 +1,8 @@
 import os
 
 
-from .general_utils import get_logger, remove_logger
+from .general_utils import get_logger, remove_logger, \
+    ensure_path_exists
 from .data_utils import get_trimmed_glove_vectors, load_vocab, \
         get_processing_word
 
@@ -15,9 +16,8 @@ class Config():
                 np array, else None
 
         """
-        # directory for training outputs
-        if not os.path.exists(self.dir_output):
-            os.makedirs(self.dir_output)
+        # setup state of execution
+        self.set_state()
 
         # create instance of logger
         self.logger = get_logger(self.path_log)
@@ -60,34 +60,68 @@ class Config():
                 if self.use_pretrained else None)
 
 
+    def set_state(self):
+        # 4. get current increment and iteration
+        # and create the path
+        with open(self.path_state) as f:
+            self.curr_increment, self.curr_iter = f.read().strip().split('\n')
+
+        # setup model paths
+        self.dir_output = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
+        self.dir_model  = self.dir_output + 'modelweights'
+        self.path_log   = self.dir_output + 'log.txt'
+        self.path_results = self.dir_output + 'results.txt'
+
+        # list of splits to use in the current run
+        # must be subset of splits.
+        self.augment_list = []
+        self.prev_increment = self.curr_increment
+        if self.curr_increment in self.splits:
+            self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
+            if self.curr_iter == '1':
+                self.prev_increment = '0' if self.curr_increment == 'a' else self.augment_list[-2]
+
+        # set the path of last predicted augment split (increment)
+        self.path_preds = ''
+        prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
+        self.path_preds = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
+
+        # TODO: take the model when incrmemting from the best
+        # performing model based on the dev set
+        self.path_prev_model = self.path_preds + 'modelweights'
+
+        # directory for training outputs
+        ensure_path_exists(self.dir_output)
+        
+        print(self.path_preds)
+        print(self.path_prev_model)
+
+        
     # general config
-    dir_output = "/lfs1/joel/experiments/sequence_tagging/model/"
-    dir_model  = dir_output + "modelweights"
-    path_log   = dir_output + "log.txt"
-    path_results = dir_output + "results.txt"
+    path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
 
     # embeddings
     dim_word = 300
     dim_char = 100
 
     # glove files
-    filename_glove = "/lfs1/shared/embeddings/glove.6B.{}d.txt".format(dim_word)
+    filename_glove = '/lfs1/shared/embeddings/glove.6B.{}d.txt'.format(dim_word)
     # trimmed embeddings (created from glove_filename with build_data.py)
-    filename_trimmed = "data/glove.6B.{}d.trimmed.npz".format(dim_word)
+    filename_trimmed = 'data/glove.6B.{}d.trimmed.npz'.format(dim_word)
     use_pretrained = True
 
     # dataset
-    filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
-    filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes"
-    filename_augment = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    filename_augment_occluded = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes"
-    filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes"
+    # filename_dev = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes'
+    # filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
+    # filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes'
+    # filename_augment = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
+    # filename_augment_occluded = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
+    # filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes'
 
-    # filename_dev = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes"
-    # filename_test = "/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes"
-    # filename_train = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes"
-    # filename_augment_40 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes"
+    filename_dev = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes'
+    filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes'
+    filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes'
+    filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes'
 
     # list of all the splits in the augmented data
     splits = ['a', 'b', 'c', 'd']
@@ -95,34 +129,23 @@ class Config():
     filename_augment_10, filename_augment_occluded_10 = {}, {}
 
     for split in splits:
-        filename_augment_10[split] = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
-        filename_augment_occluded_10[split] = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
+        filename_augment_10[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes'.format(split)
+        filename_augment_occluded_10[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes'.format(split)
 
-    # list of splits to use in the current run
-    # must be subset of splits.
-    augment_list = []
-
-    # split = 'd'
-    # filename_augment_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format(split)
-    # filename_augment_occluded_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes".format(split)
-
-    # filename_augment_next_10 = "/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes".format('d')
-    
-    
 
     max_iter = None # if not None, max number of examples in Dataset
 
     # vocab (created from dataset with build_data.py)
-    filename_words = "data/words.txt"
-    filename_tags = "data/tags.txt"
-    filename_chars = "data/chars.txt"
+    filename_words = 'data/words.txt'
+    filename_tags = 'data/tags.txt'
+    filename_chars = 'data/chars.txt'
 
     # training
     train_embeddings = True
     nepochs          = 50
     dropout          = 0.5
-    batch_size       = 32
-    lr_method        = "adam"
+    batch_size       = 64
+    lr_method        = 'adam'
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
