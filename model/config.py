@@ -10,11 +10,9 @@ from .data_utils import get_trimmed_glove_vectors, load_vocab, \
 class Config():
     def __init__(self, load=True):
         """Initialize hyperparameters and load vocabs
-
         Args:
             load_embeddings: (bool) if True, load embeddings into
                 np array, else None
-
         """
         # setup state of execution
         self.set_state()
@@ -34,11 +32,9 @@ class Config():
 
     def load(self):
         """Loads vocabulary, processing functions and embeddings
-
         Supposes that build_data.py has been run successfully and that
         the corresponding files have been created (vocab and trimmed GloVe
         vectors)
-
         """
         # 1. vocabulary
         self.vocab_words = load_vocab(self.filename_words)
@@ -98,11 +94,12 @@ class Config():
     path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
 
     # embeddings
-    dim_word = 300
+    dim_word = 100
     dim_char = 100
 
     # glove files
     filename_glove = '/lfs1/shared/embeddings/glove.6B.{}d.txt'.format(dim_word)
+
     # trimmed embeddings (created from glove_filename with build_data.py)
     filename_trimmed = 'data/glove.6B.{}d.trimmed.npz'.format(dim_word)
     use_pretrained = True
@@ -139,6 +136,7 @@ class Config():
 
     # training
     train_embeddings = True
+
     nepochs          = 50
     dropout          = 0.5
     batch_size       = 32
