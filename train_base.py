@@ -9,7 +9,7 @@ def main():
     config = Config()
 
     # clean-up any previous predictions
-    run('rm {}preds-*.pkl'.format(config.dir_output), shell=True)
+    # run('rm {}preds-*.pkl'.format(config.dir_output), shell=True)
 
     # build model
     model = NERModel(config)

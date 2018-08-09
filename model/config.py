@@ -52,7 +52,7 @@ class Config():
         # 2. get processing functions that map str -> id
         self.processing_word = get_processing_word(self.vocab_words,
                 self.vocab_chars, lowercase=True, chars=self.use_chars)
-        self.processing_tag  = get_processing_word(self.vocab_tags,
+        self.processing_tag = get_processing_word(self.vocab_tags,
                 lowercase=False, allow_unk=False)
 
         # 3. get pre-trained embeddings
@@ -81,21 +81,18 @@ class Config():
             if self.curr_iter == '1':
                 self.prev_increment = '0' if self.curr_increment == 'a' else self.augment_list[-2]
 
-        # set the path of last predicted augment split (increment)
-        self.path_preds = ''
-        prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
-        self.path_preds = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            # set the path of last predicted augment split (increment)
+            self.path_preds = ''
+            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
+            self.path_preds = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
 
-        # TODO: take the model when incrmemting from the best
-        # performing model based on the dev set
-        self.path_prev_model = self.path_preds + 'modelweights'
+            # TODO: take the model when incrmemting from the best
+            # performing model based on the dev set
+            self.path_prev_model = self.path_preds + 'modelweights'
 
         # directory for training outputs
         ensure_path_exists(self.dir_output)
         
-        print(self.path_preds)
-        print(self.path_prev_model)
-
         
     # general config
     path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
@@ -144,7 +141,7 @@ class Config():
     train_embeddings = True
     nepochs          = 50
     dropout          = 0.5
-    batch_size       = 64
+    batch_size       = 32
     lr_method        = 'adam'
     lr               = 0.01
     lr_decay         = 0.9
