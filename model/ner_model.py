@@ -15,6 +15,7 @@ class NERModel(BaseModel):
         super(NERModel, self).__init__(config)
         self.idx_to_tag = {idx: tag for tag, idx in
                            self.config.vocab_tags.items()}
+        # print(self.idx_to_tag)
 
 
     def add_placeholders(self):
@@ -36,8 +37,12 @@ class NERModel(BaseModel):
                         name="word_lengths")
 
         # shape = (batch size, max length of sentence in batch)
-        self.labels = tf.placeholder(tf.int32, shape=[None, None],
-                        name="labels")
+        # self.labels = tf.placeholder(tf.int32, shape=[None, None],
+        #                 name="labels")
+
+        # shape = (batch size, max length of sentences in batch, tag length)
+        self.labels_1hot = tf.placeholder(tf.float32, shape=[None, None, None],
+                                          name="labels_1hot")
 
         # hyper parameters
         self.dropout = tf.placeholder(dtype=tf.float32, shape=[],
@@ -46,7 +51,8 @@ class NERModel(BaseModel):
                         name="lr")
 
 
-    def get_feed_dict(self, words, labels=None, lr=None, dropout=None):
+    def get_feed_dict(self, words, labels=None, lr=None,
+                      dropout=None, augment_pred=None, proba_threshold=None):
         """Given some data, pad it and build a feed dictionary
 
         Args:
@@ -80,8 +86,21 @@ class NERModel(BaseModel):
             feed[self.word_lengths] = word_lengths
 
         if labels is not None:
-            labels, _ = pad_sequences(labels, 0)
-            feed[self.labels] = labels
+            O_idx = list(filter(lambda x: self.idx_to_tag[x] == 'O', self.idx_to_tag))[0]
+            labels, _ = pad_sequences(labels, O_idx)
+            # feed[self.labels] = None
+            # print('lables=', labels)
+
+            n_value = len(self.idx_to_tag)
+            labels_1hot = list(map(lambda x: np.eye(n_value)[x], labels))
+            # print('1hot=', labels_1hot)
+
+            if augment_pred == None:
+                feed[self.labels_1hot] = labels_1hot
+            elif proba_threshold == None:
+                feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
+            else:
+                feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold)
 
         if lr is not None:
             feed[self.lr] = lr
@@ -90,6 +109,26 @@ class NERModel(BaseModel):
             feed[self.dropout] = dropout
 
         return feed, sequence_lengths
+
+
+    def merge(self, labels_1hot, augment_pred, O_idx):
+        for sentence in range(len(augment_pred)):
+            for word in range(augment_pred[sentence].shape[0]):
+                if labels_1hot[sentence][word, O_idx] == 1.0:
+                    labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
+        return labels_1hot
+
+
+    def redistribute_proba(self, y, threshold=0.3):
+        if len(y[y>0.98]) > 0:
+            return y
+
+        # if numpy.random.randint(2) == 0:
+        if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
+            y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
+            y[y<=threshold] = 0.0
+
+        return y
 
 
     def add_word_embeddings_op(self):
@@ -192,8 +231,10 @@ class NERModel(BaseModel):
         outside the graph.
         """
         if not self.config.use_crf:
-            self.labels_pred = tf.cast(tf.argmax(self.logits, axis=-1),
-                    tf.int32)
+            self.temp = tf.identity(self.logits)
+            self.labels_pred = tf.nn.softmax(self.logits)
+            self.labels_pred_argmax = tf.cast(tf.argmax(self.labels_pred, axis=-1),
+                                       tf.int32)
 
 
     def add_loss_op(self):
@@ -204,8 +245,8 @@ class NERModel(BaseModel):
             self.trans_params = trans_params # need to evaluate it for decoding
             self.loss = tf.reduce_mean(-log_likelihood)
         else:
-            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
-                    logits=self.logits, labels=self.labels)
+            losses = tf.nn.softmax_cross_entropy_with_logits_v2(
+                    logits=self.logits, labels=self.labels_1hot)
             mask = tf.sequence_mask(self.sequence_lengths)
             losses = tf.boolean_mask(losses, mask)
             self.loss = tf.reduce_mean(losses)
@@ -252,22 +293,26 @@ class NERModel(BaseModel):
                 viterbi_seq, viterbi_score = tf.contrib.crf.viterbi_decode(
                         logit, trans_params)
                 viterbi_sequences += [viterbi_seq]
-
+            
             return viterbi_sequences, sequence_lengths
 
         else:
-            labels_pred = self.sess.run(self.labels_pred, feed_dict=fd)
+            labels_pred, labels_pred_argmax, temp = self.sess.run([self.labels_pred, self.labels_pred_argmax, self.temp], feed_dict=fd)
 
-            return labels_pred, sequence_lengths
+            return labels_pred, sequence_lengths, labels_pred_argmax, temp
 
 
-    def run_epoch(self, train, dev, epoch):
+    def run_epoch(self, train, dev, epoch, \
+                  augment_occluded=[], augment_preds=None):
         """Performs one complete pass over the train set and evaluate on dev
 
         Args:
             train: dataset that yields tuple of sentences, tags
             dev: dataset
             epoch: (int) index of the current epoch
+            augment_occluded: list of the augment datasets
+            augment_preds: list of predictions from the model trained on augment_occluded in the 
+                          previous iterations
 
         Returns:
             f1: (python float), score to select model on, higher is better
@@ -275,18 +320,34 @@ class NERModel(BaseModel):
         """
         # progbar stuff for logging
         batch_size = self.config.batch_size
-        nbatches = (len(train) + batch_size - 1) // batch_size
+
+        nbatches = (len(train) + sum([len(x) for x in augment_occluded]) + batch_size) // batch_size
         prog = Progbar(target=nbatches)
 
-        # iterate over dataset
-        for i, (words, labels) in enumerate(minibatches(train, batch_size)):
-            fd, _ = self.get_feed_dict(words, labels, self.config.lr,
-                    self.config.dropout)
+        full_data = [train] + [x for x in augment_occluded]
+        for i, (words, labels, preds) in enumerate(
+                minibatches(full_data, batch_size, augment_preds)):
+            
+            if len(preds) > 0:
+                fd, _ = self.get_feed_dict(words, labels, self.config.lr,
+                                           self.config.dropout,
+                                           augment_pred=preds,
+                                           proba_threshold=self.config.proba_threshold)
+                # print(fd[self.labels_1hot])
+                # print('\nwords', words)
+                # print('labels', labels)
+                # print('preds', preds)
+            else:
+                fd, _ = self.get_feed_dict(words, labels, self.config.lr,
+                                           self.config.dropout)
 
             _, train_loss, summary = self.sess.run(
-                    [self.train_op, self.loss, self.merged], feed_dict=fd)
+                [self.train_op, self.loss, self.merged], feed_dict=fd)
 
-            prog.update(i + 1, [("train loss", train_loss)])
+            if len(preds) > 0:
+                prog.update(i + 1, [("augment loss", train_loss)])
+            else:
+                prog.update(i + 1, [("train loss", train_loss)])
 
             # tensorboard
             if i % 10 == 0:
@@ -300,7 +361,7 @@ class NERModel(BaseModel):
         return metrics["f1"]
 
 
-    def run_evaluate(self, test):
+    def run_evaluate(self, test, augment_pred=None):
         """Evaluates performance on test set
 
         Args:
@@ -312,11 +373,22 @@ class NERModel(BaseModel):
         """
         accs = []
         correct_preds, total_correct, total_preds = 0., 0., 0.
-        for words, labels in minibatches(test, self.config.batch_size):
-            labels_pred, sequence_lengths = self.predict_batch(words)
+        for words, labels, _ in minibatches([test], self.config.batch_size):
+            labels_pred, sequence_lengths, \
+                labels_pred_argmax , temp = self.predict_batch(words)
 
-            for lab, lab_pred, length in zip(labels, labels_pred,
+            # collect prediction probability vectors for augmented data
+            if augment_pred != None:
+                augment_pred += [pred[:sequence_lengths[idx]] for idx, pred in enumerate(labels_pred)]
+
+            # print('\nsequence_lengths=', sequence_lengths)
+            # print('\npreds=', labels_pred)
+            # print('\nargmax=', labels_pred_argmax)
+            # print('\nlogits=', temp)
+            # print('\nlabels=', labels)
+            for lab, lab_pred, length in zip(labels, labels_pred_argmax,
                                              sequence_lengths):
+                # print('lab_pred=', lab_pred, '\n')
                 lab      = lab[:length]
                 lab_pred = lab_pred[:length]
                 accs    += [a==b for (a, b) in zip(lab, lab_pred)]
@@ -334,7 +406,7 @@ class NERModel(BaseModel):
         f1  = 2 * p * r / (p + r) if correct_preds > 0 else 0
         acc = np.mean(accs)
 
-        return {"acc": 100*acc, "f1": 100*f1}
+        return {"acc": 100*acc, "f1": 100*f1, "prec": 100*p, "rec": 100*r}
 
 
     def predict(self, words_raw):
@@ -350,7 +422,7 @@ class NERModel(BaseModel):
         words = [self.config.processing_word(w) for w in words_raw]
         if type(words[0]) == tuple:
             words = zip(*words)
-        pred_ids, _ = self.predict_batch([words])
+        _, __, pred_ids = self.predict_batch([words])
         preds = [self.idx_to_tag[idx] for idx in list(pred_ids[0])]
 
         return preds

@@ -15,8 +15,13 @@ class BaseModel(object):
         """
         self.config = config
         self.logger = config.logger
+        self.results_logger = config.results_logger
         self.sess   = None
         self.saver  = None
+
+
+    def reset_graph(self):
+        tf.reset_default_graph()
 
 
     def reinitialize_weights(self, scope_name):
@@ -80,8 +85,8 @@ class BaseModel(object):
 
     def save_session(self):
         """Saves session = weights"""
-        if not os.path.exists(self.config.dir_model):
-            os.makedirs(self.config.dir_model)
+        if not os.path.exists(self.config.dir_output):
+            os.makedirs(self.config.dir_output)
         self.saver.save(self.sess, self.config.dir_model)
 
 
@@ -102,7 +107,7 @@ class BaseModel(object):
                 self.sess.graph)
 
 
-    def train(self, train, dev):
+    def train(self, train, dev, augment_occluded=None, augment_preds=None):
         """Performs training with early stopping and lr exponential decay
 
         Args:
@@ -118,7 +123,11 @@ class BaseModel(object):
             self.logger.info("Epoch {:} out of {:}".format(epoch + 1,
                         self.config.nepochs))
 
-            score = self.run_epoch(train, dev, epoch)
+            if augment_occluded == None:
+                score = self.run_epoch(train, dev, epoch)
+            else:
+                score = self.run_epoch(train, dev, epoch,
+                                       augment_occluded, augment_preds)
             self.config.lr *= self.config.lr_decay # decay learning rate
 
             # early stopping and saving best parameters
@@ -135,15 +144,18 @@ class BaseModel(object):
                     break
 
 
-    def evaluate(self, test):
+    def evaluate(self, test, augment_pred=None):
         """Evaluate model on test set
 
         Args:
             test: instance of class Dataset
 
         """
-        self.logger.info("Testing model over test set")
-        metrics = self.run_evaluate(test)
-        msg = " - ".join(["{} {:04.2f}".format(k, v)
-                for k, v in metrics.items()])
-        self.logger.info(msg)
+        # self.logger.info("Testing model over test set")
+        metrics = self.run_evaluate(test, augment_pred)
+        # msg = " - ".join(["{} {:04.2f}".format(k, v)
+        #                 for k, v in metrics.items()])
+
+        fmt = "|{:04.2f}"*3
+        self.results_logger.info(
+            fmt.format(metrics['f1'], metrics['prec'], metrics['rec']))

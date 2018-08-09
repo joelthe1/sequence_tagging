@@ -1,10 +1,11 @@
+import os
 import time
 import sys
 import logging
 import numpy as np
 
 
-def get_logger(filename):
+def get_logger(filename, logger_name='logger'):
     """Return a logger instance that writes in filename
 
     Args:
@@ -14,17 +15,33 @@ def get_logger(filename):
         logger: (instance of logger)
 
     """
-    logger = logging.getLogger('logger')
+    # create and set log-level of logger instance
+    logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
+    
+    # create handler and set handler for stderr
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+
+    # create handler for logging to file
     handler = logging.FileHandler(filename)
     handler.setLevel(logging.DEBUG)
-    handler.setFormatter(logging.Formatter(
+    
+    if logger_name == 'logger':
+        handler.setFormatter(logging.Formatter(
             '%(asctime)s:%(levelname)s: %(message)s'))
-    logging.getLogger().addHandler(handler)
+    logging.getLogger(logger_name).addHandler(handler)
 
     return logger
 
+
+def remove_logger(filename):
+    handler = logging.FileHandler(filename)
+    logging.getLogger().removeHandler(handler)
+
+
+def ensure_path_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 class Progbar(object):
     """Progbar class copied from keras (https://github.com/fchollet/keras/)

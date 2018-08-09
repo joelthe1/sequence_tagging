@@ -27,9 +27,10 @@ def main():
     dev   = CoNLLDataset(config.filename_dev, processing_word)
     test  = CoNLLDataset(config.filename_test, processing_word)
     train = CoNLLDataset(config.filename_train, processing_word)
+    augment_40 = CoNLLDataset(config.filename_augment_40, processing_word)
 
     # Build Word and Tag vocab
-    vocab_words, vocab_tags = get_vocabs([train, dev, test])
+    vocab_words, vocab_tags = get_vocabs([train, dev, test, augment_40])
     vocab_glove = get_glove_vocab(config.filename_glove)
 
     vocab = vocab_words & vocab_glove
@@ -48,6 +49,10 @@ def main():
     # Build and save char vocab
     train = CoNLLDataset(config.filename_train)
     vocab_chars = get_char_vocab(train)
+    augment_40 = CoNLLDataset(config.filename_augment_40)
+    augment_40_vocab_chars = get_char_vocab(augment_40)
+    vocab_chars = vocab_chars | augment_40_vocab_chars
+    
     write_vocab(vocab_chars, config.filename_chars)
 
 
