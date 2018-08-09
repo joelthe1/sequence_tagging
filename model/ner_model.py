@@ -120,7 +120,7 @@ class NERModel(BaseModel):
 
 
     def redistribute_proba(self, y, threshold=0.3):
-        if len(y[y>0.98]) > 0:
+        if len(y[y>0.99]) > 0:
             return y
 
         # if numpy.random.randint(2) == 0:

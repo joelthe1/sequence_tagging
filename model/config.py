@@ -139,13 +139,13 @@ class Config():
 
     nepochs          = 50
     dropout          = 0.5
-    batch_size       = 32
+    batch_size       = 128
     lr_method        = 'adam'
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
-    proba_threshold  = None # None otherwise
+    proba_threshold  = 0.000002 # None otherwise
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars
