@@ -144,8 +144,8 @@ class Config():
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
-    nepoch_no_imprv  = 25
-    proba_threshold  = 0.0000002 # None otherwise
+    nepoch_no_imprv  = 100
+    proba_threshold  = 0.000002 # None otherwise
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars
