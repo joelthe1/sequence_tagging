@@ -63,7 +63,7 @@ class Config():
             self.curr_increment, self.curr_iter = f.read().strip().split('\n')
 
         # setup model paths
-        self.dir_output = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
+        self.dir_output = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
         self.dir_model  = self.dir_output + 'modelweights'
         self.path_log   = self.dir_output + 'log.txt'
         self.path_results = self.dir_output + 'results.txt'
@@ -79,8 +79,8 @@ class Config():
 
             # set the path of last predicted augment split (increment)
             self.path_preds = ''
-            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
-            self.path_preds = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment)))[-1]
+            self.path_preds = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.prev_increment, prev_iter)
 
             # TODO: take the model when incrementing from the best
             # performing previous model based on the dev set
@@ -91,10 +91,10 @@ class Config():
         
         
     # general config
-    path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
+    path_state = '/lfs1/joel/experiments/sequence_tagging2/state.txt'
 
     # embeddings
-    dim_word = 100
+    dim_word = 300
     dim_char = 100
 
     # glove files
@@ -145,7 +145,7 @@ class Config():
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
-    proba_threshold  = 0.000002 # None otherwise
+    proba_threshold  = 0.000009 # None otherwise
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars
