@@ -2,7 +2,7 @@
 
 # set gpus to use
 # export CUDA_VISIBLE_DEVICES=-1
-export CUDA_VISIBLE_DEVICES=4,5
+export CUDA_VISIBLE_DEVICES=6
 
 # set current state of iteration
 state="/lfs1/joel/experiments/sequence_tagging2/state.txt"

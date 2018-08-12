@@ -94,7 +94,7 @@ class Config():
     path_state = '/lfs1/joel/experiments/sequence_tagging2/state.txt'
 
     # embeddings
-    dim_word = 300
+    dim_word = 200
     dim_char = 100
 
     # glove files
@@ -139,7 +139,7 @@ class Config():
 
     nepochs          = 50
     dropout          = 0.5
-    batch_size       = 64
+    batch_size       = 128
     lr_method        = 'adam'
     lr               = 0.01
     lr_decay         = 0.9
