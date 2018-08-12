@@ -94,7 +94,7 @@ class Config():
     path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
 
     # embeddings
-    dim_word = 200
+    dim_word = 100
     dim_char = 100
 
     # glove files
