@@ -2,7 +2,7 @@ import os
 
 
 from .general_utils import get_logger, remove_logger, \
-    ensure_path_exists
+    ensure_path_exists, get_best_model_iter
 from .data_utils import get_trimmed_glove_vectors, load_vocab, \
         get_processing_word
 
@@ -78,13 +78,20 @@ class Config():
                 self.prev_increment = '0' if self.curr_increment == 'a' else self.augment_list[-2]
 
             # set the path of last predicted augment split (increment)
-            self.path_preds = ''
+            self.path_preds = {}
             prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
-            self.path_preds = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
 
-            # TODO: take the model when incrementing from the best
+            # Take the model when incrementing from the best
             # performing previous model based on the dev set
-            self.path_prev_model = self.path_preds + 'modelweights'
+            if self.prev_increment != '0' and self.curr_iter == '1':
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment))
+            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
+
+            # setup path preds for each split
+            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            for split in self.augment_list[:-1]:
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(split))
+                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(split, prev_iter)
 
         # directory for training outputs
         ensure_path_exists(self.dir_output)
@@ -92,6 +99,7 @@ class Config():
         
     # general config
     path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
+    path_base_models = '/lfs1/joel/experiments/sequence_tagging/model/' # currently only used in general_utils
 
     # embeddings
     dim_word = 100
@@ -145,7 +153,7 @@ class Config():
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
-    proba_threshold  = 0.00002 # None otherwise
+    proba_threshold  = 0.000002 # None otherwise
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars

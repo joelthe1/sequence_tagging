@@ -12,7 +12,7 @@ models="/lfs1/joel/experiments/sequence_tagging/model/*"
 rm -r $models
 
 # declare -a increments=( "a" "b" "c" "d" )
-declare -a increments=("0" "a")
+declare -a increments=("0" "a" "b" "c")
 iterations=7
 
 for inc in "${increments[@]}"; do
