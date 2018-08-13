@@ -13,7 +13,7 @@ rm -r $models
 
 # declare -a increments=( "a" "b" "c" "d" )
 declare -a increments=("0" "a")
-iterations=5
+iterations=50
 
 for inc in "${increments[@]}"; do
     for iter in $(seq 1 $iterations); do

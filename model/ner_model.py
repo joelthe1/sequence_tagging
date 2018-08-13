@@ -119,14 +119,14 @@ class NERModel(BaseModel):
         return labels_1hot
 
 
-    def redistribute_proba(self, y, threshold=0.3):
+    def redistribute_proba(self, y, threshold):
         if len(y[y>0.99]) > 0:
             return y
 
-        # if numpy.random.randint(2) == 0:
-        if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
-            y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
-            y[y<=threshold] = 0.0
+        if np.random.randint(2) == 0:
+            if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
+                y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
+                y[y<=threshold] = 0.0
 
         return y
 
