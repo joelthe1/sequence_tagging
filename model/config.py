@@ -72,6 +72,8 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(self.curr_iter)
+
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
             if self.curr_iter == '1':
@@ -122,8 +124,6 @@ class Config():
 
     filename_dev = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes'
     filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes'
-    filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes'
-    filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes'
 
     # list of all the splits in the augmented data
     splits = ['a', 'b', 'c', 'd']
@@ -145,11 +145,11 @@ class Config():
     # training
     train_embeddings = True
 
-    nepochs          = 50
+    nepochs          = 3
     dropout          = 0.5
     batch_size       = 128
     lr_method        = 'adam'
-    lr               = 0.01
+    lr               = 0.001
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
