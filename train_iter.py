@@ -12,6 +12,11 @@ def main():
     # build model
     model = NERModel(config)
     model.build()
+
+    print('curr_increment', config.curr_increment)
+    print('curr_iter', config.curr_iter)
+    print('path_preds=', config.path_preds)
+
     model.restore_session(config.path_prev_model)
 
     # create datasets
@@ -27,7 +32,7 @@ def main():
                                     config.processing_word,
                                     config.processing_tag, config.max_iter))
 
-        with open(config.path_preds + 'preds-{}.pkl'.format(split), 'rb') as f:
+        with open(config.path_preds.get(split) + 'preds-{}.pkl'.format(split), 'rb') as f:
             augment_preds.append(pickle.load(f))
             if len(augment_preds[-1]) == 0:
                 raise AttributeError('Error while trying to \

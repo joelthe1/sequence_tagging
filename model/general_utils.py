@@ -43,6 +43,54 @@ def ensure_path_exists(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+
+'''
+
+Dev
+|69.49|65.88|73.52
+
+Test
+|69.07|66.17|72.24
+
+Augment split: a
+|82.59|78.93|86.62
+
+Next Augment split: b
+|68.70|65.16|72.65
+'''
+
+def get_best_model_iter(path_increment):
+    model_scores = {'test': [],
+                    'dev': [],
+                    'augm': [],
+                    'next_augm': []}
+
+    for root, dirs, files in os.walk(path_increment):
+        for name in files:
+            if name == 'results.txt':
+                # print(os.path.join(root, name))
+                filename = os.path.join(root, name)
+                with open(filename) as f:
+                    for line in f:
+                        if len(line.strip()) == 0:
+                            continue
+
+                        line = line.strip().lower()
+                        iteration = filename.split('/')[-2]
+
+                        if '|' in line:
+                            model_scores.get(curr).append((iteration, float(line.split('|')[1])))
+                        else:
+                            curr = 'augm'
+                            if line in ['test', 'dev']:
+                                curr = line
+                            elif line.startswith('next'):
+                                curr = 'next_augm'
+
+    print(sorted(model_scores.get('dev'), key=lambda tup: tup[1], reverse=True))
+    return sorted(model_scores.get('dev'), key=lambda tup: tup[1], reverse=True)[0][0]
+
+
 class Progbar(object):
     """Progbar class copied from keras (https://github.com/fchollet/keras/)
 

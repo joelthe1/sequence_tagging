@@ -2,7 +2,7 @@ import os
 
 
 from .general_utils import get_logger, remove_logger, \
-    ensure_path_exists
+    ensure_path_exists, get_best_model_iter
 from .data_utils import get_trimmed_glove_vectors, load_vocab, \
         get_processing_word
 
@@ -72,19 +72,28 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(self.curr_iter)
+
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
             if self.curr_iter == '1':
                 self.prev_increment = '0' if self.curr_increment == 'a' else self.augment_list[-2]
 
             # set the path of last predicted augment split (increment)
-            self.path_preds = ''
+            self.path_preds = {}
             prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment)))[-1]
-            self.path_preds = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.prev_increment, prev_iter)
 
-            # TODO: take the model when incrementing from the best
+            # Take the model when incrementing from the best
             # performing previous model based on the dev set
-            self.path_prev_model = self.path_preds + 'modelweights'
+            if self.prev_increment != '0' and self.curr_iter == '1':
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment))
+            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
+
+            # setup path preds for each split
+            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            for split in self.augment_list[:-1]:
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(split))
+                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(split, prev_iter)
 
         # directory for training outputs
         ensure_path_exists(self.dir_output)
@@ -92,6 +101,7 @@ class Config():
         
     # general config
     path_state = '/lfs1/joel/experiments/sequence_tagging2/state.txt'
+    path_base_models = '/lfs1/joel/experiments/sequence_tagging2/model/' # currently only used in general_utils
 
     # embeddings
     dim_word = 100
@@ -112,10 +122,9 @@ class Config():
     # filename_augment_occluded = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
     # filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes'
 
+    # filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes'
     filename_dev = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes'
     filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes'
-    filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/60-bc2gm-train.iobes'
-    filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-40/40-bc2gm-train.iobes'
 
     # list of all the splits in the augmented data
     splits = ['a', 'b', 'c', 'd']
@@ -137,11 +146,11 @@ class Config():
     # training
     train_embeddings = True
 
-    nepochs          = 50
+    nepochs          = 100
     dropout          = 0.5
-    batch_size       = 128
+    batch_size       = 32
     lr_method        = 'adam'
-    lr               = 0.01
+    lr               = 0.001
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100

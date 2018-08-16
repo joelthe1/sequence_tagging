@@ -15,6 +15,7 @@ def main():
     model = NERModel(config)
     model.build()
 
+    print('training on', config.filename_train)
     # create datasets
     dev   = CoNLLDataset(config.filename_dev, config.processing_word,
                          config.processing_tag, config.max_iter)
