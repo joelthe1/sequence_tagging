@@ -28,7 +28,7 @@ def main():
     augment_occluded, augment_preds = [], []
     for split in config.augment_list:
         augment_occluded.append(CoNLLDataset(
-            config.filename_augment_occluded_10.get(split),
+            config.filename_augment_occluded.get(split),
                                     config.processing_word,
                                     config.processing_tag, config.max_iter))
 

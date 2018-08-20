@@ -2,18 +2,18 @@
 
 # set gpus to use
 # export CUDA_VISIBLE_DEVICES=-1
-export CUDA_VISIBLE_DEVICES=7
+export CUDA_VISIBLE_DEVICES=6
 
 # set current state of iteration
-state="/lfs1/joel/experiments/sequence_tagging/state.txt"
-models="/lfs1/joel/experiments/sequence_tagging/model/*"
+state="/lfs1/joel/experiments/sequence_tagging2/state.txt"
+models="/lfs1/joel/experiments/sequence_tagging2/model/*"
 
 # clean previous models
 rm -r $models
 
 # declare -a increments=( "a" "b" "c" "d" )
-declare -a increments=("0" "a" "b")
-iterations=7
+declare -a increments=("0" "93")
+iterations=10
 
 for inc in "${increments[@]}"; do
     for iter in $(seq 1 $iterations); do
