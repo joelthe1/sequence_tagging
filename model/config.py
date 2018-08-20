@@ -147,16 +147,16 @@ class Config():
     # training
     train_embeddings = True
 
-    nepochs          = 2
+    nepochs          = 50
     dropout          = 0.5
-    batch_size       = 32
+    batch_size       = 128
     lr_method        = 'adam'
     lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
     proba_threshold  = 0.000002 # None otherwise
-    randomness       = 1 # odds of 1 out of x; specify x (int>=1).
+    randomness       = 1 # chance of applying thresholding. 1 out of x; specify x (int>=1).
 
     # model hyperparameters
     hidden_size_char = 100 # lstm on chars
