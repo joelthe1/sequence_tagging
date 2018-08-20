@@ -52,7 +52,8 @@ class NERModel(BaseModel):
 
 
     def get_feed_dict(self, words, labels=None, lr=None,
-                      dropout=None, augment_pred=None, proba_threshold=None):
+                      dropout=None, augment_pred=None, proba_threshold=None,
+                      randomness=None):
         """Given some data, pad it and build a feed dictionary
 
         Args:
@@ -100,7 +101,7 @@ class NERModel(BaseModel):
             elif proba_threshold == None:
                 feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
             else:
-                feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold)
+                feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold, randomness)
 
         if lr is not None:
             feed[self.lr] = lr
@@ -119,11 +120,11 @@ class NERModel(BaseModel):
         return labels_1hot
 
 
-    def redistribute_proba(self, y, threshold):
-        if len(y[y>0.99]) > 0:
+    def redistribute_proba(self, y, threshold, randomness):
+        if len(y[y>=1.0]) > 0:
             return y
 
-        if np.random.randint(2) == 0:
+        if np.random.randint(randomness) == 0:
             if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
                 y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
                 y[y<=threshold] = 0.0
@@ -332,7 +333,8 @@ class NERModel(BaseModel):
                 fd, _ = self.get_feed_dict(words, labels, self.config.lr,
                                            self.config.dropout,
                                            augment_pred=preds,
-                                           proba_threshold=self.config.proba_threshold)
+                                           proba_threshold=self.config.proba_threshold,
+                                           randomness=self.config.randomness)
                 # print(fd[self.labels_1hot])
                 # print('\nwords', words)
                 # print('labels', labels)
