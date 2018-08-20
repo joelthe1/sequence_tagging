@@ -86,12 +86,12 @@ def main():
     augment = []
     for split in config.augment_list:
         augment.append(
-            CoNLLDataset(config.filename_augment_10.get(split),
+            CoNLLDataset(config.filename_augment.get(split),
                          config.processing_word,
                          config.processing_tag, config.max_iter))
 
     next_split = min(len(config.augment_list), len(config.splits)-1)
-    next_augment = CoNLLDataset(config.filename_augment_10.get(config.splits[next_split]),
+    next_augment = CoNLLDataset(config.filename_augment.get(config.splits[next_split]),
                                 config.processing_word,
                                 config.processing_tag, config.max_iter)
         

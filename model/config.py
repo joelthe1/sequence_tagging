@@ -72,12 +72,12 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
-        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(self.curr_iter)
+        # self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(self.curr_iter)
 
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
             if self.curr_iter == '1':
-                self.prev_increment = '0' if self.curr_increment == 'a' else self.augment_list[-2]
+                self.prev_increment = '0' if self.curr_increment == self.splits[0] else self.augment_list[-2]
 
             # set the path of last predicted augment split (increment)
             self.path_preds = {}
@@ -104,7 +104,7 @@ class Config():
     path_base_models = '/lfs1/joel/experiments/sequence_tagging2/model/' # currently only used in general_utils
 
     # embeddings
-    dim_word = 100
+    dim_word = 300
     dim_char = 100
 
     # glove files
@@ -120,20 +120,19 @@ class Config():
     # filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_train_1.iobes'
     # filename_augment = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
     # filename_augment_occluded = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
-    # filename_augment_40 = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_dev_1.iobes'
 
-    # filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes'
+    filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/keep1-rand-occluded/7-93/7-bc2gm-train.iobes' # '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes'
     filename_dev = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_dev.iobes'
     filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes'
 
     # list of all the splits in the augmented data
-    splits = ['a', 'b', 'c', 'd']
+    splits = ['93'] # ['a', 'b', 'c', 'd']
 
-    filename_augment_10, filename_augment_occluded_10 = {}, {}
+    filename_augment, filename_augment_occluded = {}, {}
 
     for split in splits:
-        filename_augment_10[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-{}.iobes'.format(split)
-        filename_augment_occluded_10[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/60-10s/10-bc2gm-train-occluded-{}.iobes'.format(split)
+        filename_augment[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/keep1-rand-occluded/7-93/{}-bc2gm-rand-full-augm.iobes'.format(split)
+        filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/keep1-rand-occluded/7-93/{}-bc2gm-rand-occ-augm.iobes'.format(split)
 
 
     max_iter = None # if not None, max number of examples in Dataset
@@ -146,11 +145,11 @@ class Config():
     # training
     train_embeddings = True
 
-    nepochs          = 100
+    nepochs          = 50
     dropout          = 0.5
     batch_size       = 32
     lr_method        = 'adam'
-    lr               = 0.001
+    lr               = 0.01
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
