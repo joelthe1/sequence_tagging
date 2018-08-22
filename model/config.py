@@ -60,10 +60,16 @@ class Config():
         # 4. get current increment and iteration
         # and create the path
         with open(self.path_state) as f:
-            self.curr_increment, self.curr_iter = f.read().strip().split('\n')
+            self.curr_increment, self.curr_iter, temp_inc = f.read().strip().split('\n')
+
+        self.splits = []; self.splits.append(temp_inc)
+
+        for split in self.splits:
+            self.filename_augment[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train.iobes'.format(str(100-int(split)), split, split)
+            self.filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train-occluded.iobes'.format(str(100-int(split)), split, split)
 
         # setup model paths
-        self.dir_output = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
+        self.dir_output = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
         self.dir_model  = self.dir_output + 'modelweights'
         self.path_log   = self.dir_output + 'log.txt'
         self.path_results = self.dir_output + 'results.txt'
@@ -72,7 +78,7 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
-        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(self.curr_iter)
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/{}-bc2gm-train.iobes'.format(str(100-int(self.splits[0])))
 
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
@@ -81,27 +87,27 @@ class Config():
 
             # set the path of last predicted augment split (increment)
             self.path_preds = {}
-            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
+            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment)))[-1]
 
             # Take the model when incrementing from the best
             # performing previous model based on the dev set
             if self.prev_increment != '0' and self.curr_iter == '1':
-                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment))
-            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment))
+            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
 
             # setup path preds for each split
-            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.prev_increment, prev_iter)
             for split in self.augment_list[:-1]:
-                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(split))
-                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/'.format(split, prev_iter)
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(split))
+                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(split, prev_iter)
 
         # directory for training outputs
         ensure_path_exists(self.dir_output)
         
         
     # general config
-    path_state = '/lfs1/joel/experiments/sequence_tagging/state.txt'
-    path_base_models = '/lfs1/joel/experiments/sequence_tagging/model/' # currently only used in general_utils
+    path_state = '/lfs1/joel/experiments/sequence_tagging2/state.txt'
+    path_base_models = '/lfs1/joel/experiments/sequence_tagging2/model/' # currently only used in general_utils
 
     # embeddings
     dim_word = 100
@@ -128,14 +134,9 @@ class Config():
     filename_test = '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_test.iobes'
 
     # list of all the splits in the augmented data
-    splits = ['93'] # ['a', 'b', 'c', 'd']
+    # splits = ['99'] # ['a', 'b', 'c', 'd']
 
     filename_augment, filename_augment_occluded = {}, {}
-
-    for split in splits:
-        filename_augment[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/keep1-rand-occluded/7-93/{}-bc2gm-rand-full-augm.iobes'.format(split)
-        filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/keep1-rand-occluded/7-93/{}-bc2gm-rand-occ-augm.iobes'.format(split)
-
 
     max_iter = None # if not None, max number of examples in Dataset
 

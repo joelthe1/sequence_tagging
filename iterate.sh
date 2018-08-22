@@ -5,29 +5,35 @@
 export CUDA_VISIBLE_DEVICES=6
 
 # set current state of iteration
-state="/lfs1/joel/experiments/sequence_tagging/state.txt"
-models="/lfs1/joel/experiments/sequence_tagging/model/*"
+state="/lfs1/joel/experiments/sequence_tagging2/state.txt"
+models="/lfs1/joel/experiments/sequence_tagging2/model/*"
 
 # clean previous models
 rm -r $models
 
 # declare -a increments=( "a" "b" "c" "d" )
-declare -a increments=("0" "93")
+declare -a allsplits=("99" "97" "95" "93" "10" "20" "30" "40" "50" "60" "70" "80" "90")
 iterations=10
 
-for inc in "${increments[@]}"; do
-    for iter in $(seq 1 $iterations); do
-	# write current state
-	printf "%s\n%s" "$inc" "$iter" > $state
+for s in "${allsplits[@]}"; do
+    increments=("0")
+    increments+=("$s")
+    # echo "${increments[@]}"
+    for inc in "${increments[@]}"; do
+	for iter in $(seq 1 $iterations); do
+	    # write current state
+	    printf "%s\n%s\n%s" "$inc" "$iter" "$s" > $state
 
-	# train model
-	if [ "$inc" == "0" ]; then
-	    python train_base.py
-	    python evaluate.py
-	    break
-	else
-	    python train_iter.py
-	    python evaluate.py
-	fi
+	    # train model
+	    if [ "$inc" == "0" ]; then
+		python train_base.py
+		python evaluate.py
+		break
+	    else
+		python train_iter.py
+		python evaluate.py
+	    fi
+	done
     done
+    mv /lfs1/joel/experiments/sequence_tagging2/model/0 /lfs1/joel/experiments/sequence_tagging2/model/0-"$s"
 done
