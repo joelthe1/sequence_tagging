@@ -11,7 +11,7 @@ models="/lfs1/joel/experiments/sequence_tagging2/model/*"
 # clean previous models
 rm -r $models
 
-# declare -a increments=( "a" "b" "c" "d" )
+#declare -a allsplits=("99" "97")
 declare -a allsplits=("99" "97" "95" "93" "10" "20" "30" "40" "50" "60" "70" "80" "90")
 iterations=10
 
