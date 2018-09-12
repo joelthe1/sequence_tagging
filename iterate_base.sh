@@ -11,7 +11,8 @@ models="/lfs1/joel/experiments/sequence_tagging/model/*"
 # clean previous models
 rm -r $models
 
-declare -a increments=("1" "3" "5" "7" "10" "20" "30" "40" "50" "60" "70" "80" "90")
+declare -a increments=("15" "1" "2" "3" "4" "5" "6" "7" "10" "20" "30" "40" "50" "60" "70" "80" "90")
+# declare -a increments=("1")
 
 for inc in "${increments[@]}"; do
     # write current state

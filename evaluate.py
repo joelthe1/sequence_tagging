@@ -91,9 +91,6 @@ def main():
                          config.processing_tag, config.max_iter))
 
     next_split = min(len(config.augment_list), len(config.splits)-1)
-    next_augment = CoNLLDataset(config.filename_augment.get(config.splits[next_split]),
-                                config.processing_word,
-                                config.processing_tag, config.max_iter)
         
 
     # evaluate on dev
@@ -117,16 +114,20 @@ def main():
             pickle.dump(augment_pred, f)
 
 
-    # evaluate on the next augment split and save predictions
-    augment_pred = []
-    model.results_logger.info("\nNext Augment split: {}"
-                      .format(config.splits[next_split]))
-    model.evaluate(next_augment, augment_pred)
-
-    # save next augment split predictions
-    with open(config.dir_output + 'preds-{}.pkl'.format(config.splits[next_split]), 'wb') as f:
-        pickle.dump(augment_pred, f)
-
+    if next_split > -1:
+        next_augment = CoNLLDataset(config.filename_augment.get(config.splits[next_split]),
+                                    config.processing_word,
+                                    config.processing_tag, config.max_iter)
+        # evaluate on the next augment split and save predictions
+        augment_pred = []
+        model.results_logger.info("\nNext Augment split: {}"
+                                  .format(config.splits[next_split]))
+        model.evaluate(next_augment, augment_pred)
+        
+        # save next augment split predictions
+        with open(config.dir_output + 'preds-{}.pkl'.format(config.splits[next_split]), 'wb') as f:
+            pickle.dump(augment_pred, f)
+        
 
 if __name__ == "__main__":
     main()
