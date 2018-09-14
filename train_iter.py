@@ -13,9 +13,9 @@ def main():
     model = NERModel(config)
     model.build()
 
-    print('curr_increment', config.curr_increment)
-    print('curr_iter', config.curr_iter)
-    print('path_preds=', config.path_preds)
+    print('curr_increment:', config.curr_increment)
+    print('curr_iter:', config.curr_iter)
+    print('path_preds:', config.path_preds)
 
     model.restore_session(config.path_prev_model)
 
@@ -27,6 +27,7 @@ def main():
 
     augment_occluded, augment_preds = [], []
     for split in config.augment_list:
+        print('augment_file:', config.filename_augment_occluded.get(split))
         augment_occluded.append(CoNLLDataset(
             config.filename_augment_occluded.get(split),
                                     config.processing_word,
