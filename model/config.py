@@ -72,7 +72,7 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
-        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bio-c/splits/{}-{}/{}-train.traindevsplit.tok.iob'.format(self.curr_iter, 100-int(self.curr_iter), self.curr_iter)
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/{}-{}/{}-train.prots.iob'.format(self.curr_iter, 100-int(self.curr_iter), self.curr_iter) # '/lfs1/joel/experiments/bigmech/data/bio-c/splits/{}-{}/{}-train.traindevsplit.tok.iob'.format(self.curr_iter, 100-int(self.curr_iter), self.curr_iter)
 
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
@@ -84,7 +84,7 @@ class Config():
             prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment)))[-1]
 
             # Take the model when incrementing from the best
-            # performing previous model based on the dev set
+            # performing previous model based onthe dev set
             if self.prev_increment != '0' and self.curr_iter == '1':
                 prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging/model/{}'.format(self.prev_increment))
             self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
@@ -121,8 +121,8 @@ class Config():
     # filename_augment = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
     # filename_augment_occluded = '/lfs1/joel/experiments/bigmech/data/bc2gm/temp/bc2gm_test_1.iobes'
 
-    filename_dev = '/lfs1/joel/experiments/bigmech/data/bio-c/dev.traindevsplit.tok.iob'
-    filename_test = '/lfs1/joel/experiments/bigmech/data/bio-c/test.traindevsplit.tok.iob'
+    filename_dev = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/dev.prots.iob'
+    filename_test = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/test.prots.iob'
 
     # list of all the splits in the augmented data
     splits = [] # ['a', 'b', 'c', 'd']
