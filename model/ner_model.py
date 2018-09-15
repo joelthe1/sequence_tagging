@@ -115,8 +115,8 @@ class NERModel(BaseModel):
     def merge(self, labels_1hot, augment_pred, O_idx):
         for sentence in range(len(augment_pred)):
             for word in range(augment_pred[sentence].shape[0]):
-                # if labels_1hot[sentence][word, O_idx] == 1.0:
-                labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
+                if labels_1hot[sentence][word, O_idx] == 1.0:
+                    labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
         return labels_1hot
 
 
