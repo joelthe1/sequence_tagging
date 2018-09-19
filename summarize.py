@@ -1,8 +1,8 @@
 import os
 import time
 
-READIN_DIR = '/lfs1/joel/experiments/sequence_tagging2/model'
-OUTPUT_DIR = '/lfs1/joel/experiments/sequence_tagging2/results_{}.txt'\
+READIN_DIR = '/lfs1/joel/experiments/sequence_tagging3/model'
+OUTPUT_DIR = '/lfs1/joel/experiments/sequence_tagging3/results_{}.txt'\
     .format(str(int(time.time())))
 
 print('Writing results to {} ...'.format(OUTPUT_DIR))

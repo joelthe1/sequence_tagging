@@ -69,7 +69,7 @@ class Config():
             self.filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/{}-{}/{}-train.occ.prots.iob'.format(str(100-int(split)), split, split)
 
         # setup model paths
-        self.dir_output = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
+        self.dir_output = '/lfs1/joel/experiments/sequence_tagging3/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
         self.dir_model  = self.dir_output + 'modelweights'
         self.path_log   = self.dir_output + 'log.txt'
         self.path_results = self.dir_output + 'results.txt'
@@ -87,27 +87,27 @@ class Config():
 
             # set the path of last predicted augment split (increment)
             self.path_preds = {}
-            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment)))[-1]
+            prev_iter = sorted(os.listdir('/lfs1/joel/experiments/sequence_tagging3/model/{}'.format(self.prev_increment)))[-1]
 
             # Take the model when incrementing from the best
             # performing previous model based on the dev set
             if self.prev_increment != '0' and self.curr_iter == '1':
-                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(self.prev_increment))
-            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging3/model/{}'.format(self.prev_increment))
+            self.path_prev_model = '/lfs1/joel/experiments/sequence_tagging3/model/{}/{}/modelweights'.format(self.prev_increment, prev_iter)
 
             # setup path preds for each split
-            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(self.prev_increment, prev_iter)
+            self.path_preds[self.curr_increment] = '/lfs1/joel/experiments/sequence_tagging3/model/{}/{}/'.format(self.prev_increment, prev_iter)
             for split in self.augment_list[:-1]:
-                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging2/model/{}'.format(split))
-                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging2/model/{}/{}/'.format(split, prev_iter)
+                prev_iter = get_best_model_iter('/lfs1/joel/experiments/sequence_tagging3/model/{}'.format(split))
+                self.path_preds[split] = '/lfs1/joel/experiments/sequence_tagging3/model/{}/{}/'.format(split, prev_iter)
 
         # directory for training outputs
         ensure_path_exists(self.dir_output)
         
         
     # general config
-    path_state = '/lfs1/joel/experiments/sequence_tagging2/state.txt'
-    path_base_models = '/lfs1/joel/experiments/sequence_tagging2/model/' # currently only used in general_utils
+    path_state = '/lfs1/joel/experiments/sequence_tagging3/state.txt'
+    path_base_models = '/lfs1/joel/experiments/sequence_tagging3/model/' # currently only used in general_utils
 
     # embeddings
     dim_word = 100

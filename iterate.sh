@@ -5,8 +5,8 @@
 export CUDA_VISIBLE_DEVICES=6
 
 # set current state of iteration
-state="/lfs1/joel/experiments/sequence_tagging2/state.txt"
-models="/lfs1/joel/experiments/sequence_tagging2/model/*"
+state="/lfs1/joel/experiments/sequence_tagging3/state.txt"
+models="/lfs1/joel/experiments/sequence_tagging3/model/*"
 
 # clean previous models
 rm -r $models
@@ -36,5 +36,5 @@ for s in "${allsplits[@]}"; do
 	    fi
 	done
     done
-    mv /lfs1/joel/experiments/sequence_tagging2/model/0 /lfs1/joel/experiments/sequence_tagging2/model/0-"$s"
+    mv /lfs1/joel/experiments/sequence_tagging3/model/0 /lfs1/joel/experiments/sequence_tagging3/model/0-"$s"
 done
