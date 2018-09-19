@@ -124,10 +124,10 @@ class NERModel(BaseModel):
         if len(y[y>=1.0]) > 0:
             return y
 
-        if np.random.randint(randomness) == 0:
-            if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
-                y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
-                y[y<=threshold] = 0.0
+        # if np.random.randint(randomness) == 0:
+        #     if len(y[y<=threshold]) != 0 and len(y[y<=threshold]) < len(y):
+        #         y[y>threshold] += np.sum(y[y<=threshold])/len(y[y>threshold])
+        #         y[y<=threshold] = 0.0
 
         return y
 

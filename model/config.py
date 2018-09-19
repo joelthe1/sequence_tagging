@@ -78,7 +78,7 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
-        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/{}-{}/{}-train.prots.iob'.format(str(100-int(self.splits[0])), self.splits[0], str(100-int(self.splits[0]))) # '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/train.prots.iob'
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/{}-{}/{}-train.prots.iob'.format(str(100-int(self.splits[0])), self.splits[0], str(100-int(self.splits[0]))) #'/lfs1/joel/experiments/bigmech/data/bio-c/proteins/train.prots.iob'
 
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
