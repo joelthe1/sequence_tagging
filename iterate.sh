@@ -11,7 +11,7 @@ models="/lfs1/joel/experiments/sequence_tagging3/model/*"
 # clean previous models
 rm -r $models
 
-declare -a allsplits=("85")
+declare -a allsplits=("100")
 # declare -a allsplits=("85" "99" "98" "97" "96" "95" "94" "93" "10" "20" "30" "40" "60" "70" "80" "90")
 iterations=10
 

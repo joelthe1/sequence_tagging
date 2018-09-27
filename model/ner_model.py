@@ -322,7 +322,8 @@ class NERModel(BaseModel):
         # progbar stuff for logging
         batch_size = self.config.batch_size
 
-        nbatches = (len(train) + sum([len(x) for x in augment_occluded]) + batch_size) // batch_size
+        nbatches = (len(train) + batch_size) // batch_size
+        # nbatches = (len(train) + sum([len(x) for x in augment_occluded]) + batch_size) // batch_size
         prog = Progbar(target=nbatches)
 
         full_data = [train] + [x for x in augment_occluded]
