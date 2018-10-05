@@ -6,6 +6,11 @@ State-of-the-art performance (F1 score between 90 and 91).
 
 Check the [blog post](https://guillaumegenthial.github.io/sequence-tagging-with-tensorflow.html)
 
+## Current State
+
+This setup is currently for saving the argmax'd predictions too which doesn't change much other with the arch. as such.
+
+
 ## Task
 
 Given a sentence, give a tag to each word. A classical application is Named Entity Recognition (NER). Here is an example
