@@ -144,7 +144,7 @@ class BaseModel(object):
                     break
 
 
-    def evaluate(self, test, augment_pred=None):
+    def evaluate(self, test, augment_pred=None, augment_argmax=None):
         """Evaluate model on test set
 
         Args:
@@ -152,7 +152,7 @@ class BaseModel(object):
 
         """
         # self.logger.info("Testing model over test set")
-        metrics = self.run_evaluate(test, augment_pred)
+        metrics = self.run_evaluate(test, augment_pred, augment_argmax)
         # msg = " - ".join(["{} {:04.2f}".format(k, v)
         #                 for k, v in metrics.items()])
 

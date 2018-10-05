@@ -363,7 +363,7 @@ class NERModel(BaseModel):
         return metrics["f1"]
 
 
-    def run_evaluate(self, test, augment_pred=None):
+    def run_evaluate(self, test, augment_pred=None, augment_argmax=None):
         """Evaluates performance on test set
 
         Args:
@@ -382,6 +382,9 @@ class NERModel(BaseModel):
             # collect prediction probability vectors for augmented data
             if augment_pred != None:
                 augment_pred += [pred[:sequence_lengths[idx]] for idx, pred in enumerate(labels_pred)]
+
+            if augment_argmax != None:
+                augment_argmax += [pred[:sequence_lengths[idx]] for idx, pred in enumerate(labels_pred_argmax)]
 
             # print('\nsequence_lengths=', sequence_lengths)
             # print('\npreds=', labels_pred)

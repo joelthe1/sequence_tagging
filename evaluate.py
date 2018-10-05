@@ -106,27 +106,34 @@ def main():
 
     if len(config.augment_list) > 0:
         # evaluate on current augment
-        augment_pred = []
+        augment_pred, augment_pred_argmax = [], []
         model.results_logger.info("\nAugment split: {}"
                           .format(config.augment_list[-1]))
-        model.evaluate(augment[-1], augment_pred)
+        model.evaluate(augment[-1], augment_pred, augment_pred_argmax)
 
         # save current augment predictions
         with open(config.dir_output + 'preds-{}.pkl'
                   .format(config.augment_list[-1]), 'wb') as f:
             pickle.dump(augment_pred, f)
 
+        with open(config.dir_output + 'preds-argmax-{}.pkl'
+                  .format(config.augment_list[-1]), 'wb') as f:
+            pickle.dump(augment_pred_argmax, f)
+            
 
     # evaluate on the next augment split and save predictions
-    augment_pred = []
+    augment_pred, augment_pred_argmax = [], []
     model.results_logger.info("\nNext Augment split: {}"
                       .format(config.splits[next_split]))
-    model.evaluate(next_augment, augment_pred)
+    model.evaluate(next_augment, augment_pred, augment_pred_argmax)
 
     # save next augment split predictions
     with open(config.dir_output + 'preds-{}.pkl'.format(config.splits[next_split]), 'wb') as f:
         pickle.dump(augment_pred, f)
 
+    with open(config.dir_output + 'preds-argmax-{}.pkl'.format(config.splits[next_split]), 'wb') as f:
+        pickle.dump(augment_pred_argmax, f)
+        
 
 if __name__ == "__main__":
     main()

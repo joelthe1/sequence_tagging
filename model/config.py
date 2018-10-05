@@ -156,7 +156,7 @@ class Config():
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
-    proba_threshold  = 0.000002 # None otherwise
+    proba_threshold  = None #0.000002 # None otherwise
     randomness       = 1 # chance of applying thresholding. 1 out of x; specify x (int>=1).
 
     # model hyperparameters
