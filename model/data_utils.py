@@ -370,8 +370,8 @@ def minibatches(datasets, minibatch_size, preds=None):
         x_batch, y_batch, pred_batch = [], [], []
         if data_idx == 1 and len(data) == 0:
             break
-        if preds != None and data_idx == 0:
-            continue
+        # if preds != None and data_idx == 0:
+        #     continue
         for sent_idx, (x, y) in enumerate(data):
             if len(x_batch) == minibatch_size:
                 yield x_batch, y_batch, pred_batch

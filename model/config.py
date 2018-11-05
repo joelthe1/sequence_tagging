@@ -65,8 +65,8 @@ class Config():
         self.splits = []; self.splits.append(temp_inc)
 
         for split in self.splits:
-            self.filename_augment[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train.iobes'.format(str(100-int(split)), split, split)
-            self.filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train-occluded.iobes'.format(str(100-int(split)), split, split)
+            self.filename_augment[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-test.iobes'.format(str(100-int(split)), split, split)
+            self.filename_augment_occluded[split] = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-test-occluded.iobes'.format(str(100-int(split)), split, split)
 
         # setup model paths
         self.dir_output = '/lfs1/joel/experiments/sequence_tagging3/model/{}/{}/'.format(self.curr_increment, self.curr_iter)
@@ -78,7 +78,7 @@ class Config():
         # must be subset of splits.
         self.augment_list = []
         self.prev_increment = self.curr_increment
-        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train.iobes'.format(str(100-int(self.splits[0])), self.splits[0], str(100-int(self.splits[0]))) #'/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes'
+        self.filename_train = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/{}-{}/{}-bc2gm-train.iobes'.format(str(100-int(self.splits[0])), self.splits[0], str(100-int(self.splits[0]))) # '/lfs1/joel/experiments/bigmech/data/bc2gm/bc2gm_train.iobes'
 
         if self.curr_increment in self.splits:
             self.augment_list = self.splits[:self.splits.index(self.curr_increment) + 1]
@@ -156,7 +156,7 @@ class Config():
     lr_decay         = 0.9
     clip             = -1 # if negative, no clipping
     nepoch_no_imprv  = 100
-    proba_threshold  = 0 # None otherwise
+    proba_threshold  = None # None otherwise
     randomness       = 1 # chance of applying thresholding. 1 out of x; specify x (int>=1).
 
     # model hyperparameters
