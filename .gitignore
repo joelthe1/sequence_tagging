@@ -1,8 +1,9 @@
 *pyc
-/data
-!/data/.gitkeep
+/data/*.txt
+# !/data/.gitkeep
 /results
 *.DS_Store
 
 *~
 \#*\#
+*.npz
