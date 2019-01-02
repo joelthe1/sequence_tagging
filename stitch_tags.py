@@ -1,16 +1,16 @@
 from pickle import load
 
-ARGMAX_PKL_PATH = '/lfs1/joel/experiments/sequence_tagging2/model-3-97-bc2gm/97/10/preds-argmax-97.pkl'
-INPUT_FILE_PATH = '/lfs1/joel/experiments/bigmech/data/bc2gm/train-shuf-splits/keep1-rand-occluded/3-97/97-bc2gm-train-occluded.iobes'
+ARGMAX_PKL_PATH = '/lfs1/joel/experiments/sequence_tagging2/model/97/5/preds-argmax-97.pkl'
+INPUT_FILE_PATH = '/lfs1/joel/experiments/bigmech/data/bio-c/proteins/3-97/97-auto-exact-unfiltered.iob'
 
-OUTPUT_PATH = '/lfs1/joel/experiments/sequence_tagging2/argmaxd_stitched_bc2gm/10/argmaxd.iobes'
+OUTPUT_PATH = '/lfs1/joel/experiments/sequence_tagging2/97-argmaxd-bio-c.iob'
 
-# ARGMAX_PKL_PATH = '/lfs1/joel/experiments/sequence_tagging2/temp.pkl'
-# INPUT_FILE_PATH = '/lfs1/joel/experiments/sequence_tagging2/temp_in.iob'
-# OUTPUT_PATH = '/lfs1/joel/experiments/sequence_tagging2/argmaxd.iob'
+# ARGMAX_PKL_PATH = '/lfs1/joel/experiments/sequence_tagging231/temp.pkl'
+# INPUT_FILE_PATH = '/lfs1/joel/experiments/sequence_tagging231/temp_in.iob'
+# OUTPUT_PATH = '/lfs1/joel/experiments/sequence_tagging231/argmaxd.iob'
 
-TAGS_PATH = '/lfs1/joel/experiments/sequence_tagging2/tags_bc2gm.txt' #'/nas/home/joel/src/sequence_tagging2/data/tags.txt'
-token_sep = '\t'
+TAGS_PATH = '/nas/home/joel/src/sequence_tagging2/data/tags.txt'
+token_sep = ' '
 
 def get_tags_dict(TAGS_PATH):
     key = 0

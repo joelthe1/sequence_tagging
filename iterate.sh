@@ -5,11 +5,11 @@
 export CUDA_VISIBLE_DEVICES=6
 
 # set current state of iteration
-state="/lfs1/joel/experiments/sequence_tagging2/state.txt"
-models="/lfs1/joel/experiments/sequence_tagging2/model/*"
+state="/lfs1/joel/experiments/sequence_tagging231/state.txt"
+models="/lfs1/joel/experiments/sequence_tagging231/model/*"
 
 # clean previous models
-rm -r $models
+#rm -r $models
 
 declare -a allsplits=("97")
 # do "50" split separately
@@ -37,5 +37,5 @@ for s in "${allsplits[@]}"; do
 	    fi
 	done
     done
-    mv /lfs1/joel/experiments/sequence_tagging2/model/0 /lfs1/joel/experiments/sequence_tagging2/model/0-"$s"
+    mv /lfs1/joel/experiments/sequence_tagging231/model/0 /lfs1/joel/experiments/sequence_tagging231/model/0-"$s"
 done

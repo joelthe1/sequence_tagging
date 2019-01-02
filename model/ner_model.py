@@ -98,10 +98,13 @@ class NERModel(BaseModel):
 
             if augment_pred == None:
                 feed[self.labels_1hot] = labels_1hot
-            elif proba_threshold == None:
-                feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
+            # elif proba_threshold == -1
+            #     feed[self.labels_1hot] = self.merge(labels_1hot, augment_pred, O_idx)
             else:
-                feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold, randomness)
+                feed[self.labels_1hot] = self.merge_all(labels_1hot, augment_pred, O_idx)
+            #if proba_threshold >= 1:
+            # else:
+            #     feed[self.labels_1hot] = np.apply_along_axis(self.redistribute_proba, -1, self.merge(labels_1hot, augment_pred, O_idx), proba_threshold, randomness)
 
         if lr is not None:
             feed[self.lr] = lr
@@ -111,13 +114,20 @@ class NERModel(BaseModel):
 
         return feed, sequence_lengths
 
-
-    def merge(self, labels_1hot, augment_pred, O_idx):
+    
+    def merge_all(self, labels_1hot, augment_pred, O_idx):
         for sentence in range(len(augment_pred)):
             for word in range(augment_pred[sentence].shape[0]):
-                if labels_1hot[sentence][word, O_idx] == 1.0:
-                    labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
+                labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
         return labels_1hot
+
+
+    # def merge(self, labels_1hot, augment_pred, O_idx):
+    #     for sentence in range(len(augment_pred)):
+    #         for word in range(augment_pred[sentence].shape[0]):
+    #             if labels_1hot[sentence][word, O_idx] == 1.0:
+    #                 labels_1hot[sentence][word, :] = augment_pred[sentence][word, :]
+    #     return labels_1hot
 
 
     def redistribute_proba(self, y, threshold, randomness):
