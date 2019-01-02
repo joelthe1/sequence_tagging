@@ -8,7 +8,7 @@ Check the [blog post](https://guillaumegenthial.github.io/sequence-tagging-with-
 
 ## Current State
 
-This setup is currently for saving the argmax'd predictions too which doesn't change much other with the arch. as such.
+This setup is for running the experiment with merging unannotated reference set.
 
 
 ## Task
